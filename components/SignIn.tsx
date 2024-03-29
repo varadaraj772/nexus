@@ -1,39 +1,52 @@
 /* eslint-disable prettier/prettier */
 import {
-  View,
   Text,
   StyleSheet,
   TextInput,
   SafeAreaView,
   Pressable,
+  Button,
+  Alert,
 } from 'react-native';
 import React, {useState} from 'react';
-
-function handleSignUp() {}
+import auth from '@react-native-firebase/auth';
 
 export default function SignIn({navigation}) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  function handleSignUp() {
+    auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        navigation.navigate('HOME');
+      })
+      .catch((error: {nativeErrorMessage: string}) => {
+        Alert.alert(error.nativeErrorMessage);
+      });
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          onChangeText={setUsername}
-          value={username}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          onChangeText={setPassword}
-          value={password}
-          secureTextEntry={true}
-        />
-      </View>
+      <TextInput
+        placeholder="Email"
+        onChangeText={setEmail}
+        value={email}
+        style={styles.input}
+        placeholderTextColor="#0D0707"
+      />
+
+      <TextInput
+        placeholder="Password"
+        onChangeText={setPassword}
+        value={password}
+        secureTextEntry
+        style={styles.input}
+        placeholderTextColor="#0D0707"
+      />
       <Pressable onPress={handleSignUp} style={styles.btn}>
         <Text style={styles.txt}>LOGIN</Text>
       </Pressable>
+      <Button title="go to home" onPress={() => navigation.navigate('HOME')} />
     </SafeAreaView>
   );
 }
@@ -62,7 +75,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#FE7F48',
     alignItems: 'center',
-
+    marginTop: 10,
     justifyContent: 'center',
   },
   txt: {

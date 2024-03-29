@@ -15,7 +15,6 @@ export default function SignUp({navigation}) {
     auth()
       .createUserWithEmailAndPassword(email, password)
       .then(() => {
-        Alert.alert('User created');
         navigation.navigate('LOGIN');
       })
       .catch(error => {
@@ -58,7 +57,10 @@ export default function SignUp({navigation}) {
       <Pressable onPress={handleSignup} style={styles.btn}>
         <Text style={styles.txt}>CREATE ACCOUNT</Text>
       </Pressable>
-      <Button title="go to next page" onPress={navigation.navigate('LOGIN')} />
+      <Button
+        title="go to sign in"
+        onPress={() => navigation.navigate('LOGIN')}
+      />
     </SafeAreaView>
   );
 }

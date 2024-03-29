@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import SignUp from './components/SignUp';
@@ -11,7 +12,7 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="CREATE ACCOUNT" component={SignUp} />
         <Stack.Screen name="LOGIN" component={SignIn} />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="HOME" component={Home} />
       </Stack.Navigator>
     </NavigationContainer>
   );
