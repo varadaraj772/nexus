@@ -1,7 +1,20 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import SignUp from './components/SignUp';
+import {createStackNavigator} from '@react-navigation/stack';
+import SignIn from './components/SignIn';
+import Home from './components/Home';
+const Stack = createStackNavigator();
 const App = () => {
-  return <Text>Hello world</Text>;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="CREATE ACCOUNT" component={SignUp} />
+        <Stack.Screen name="LOGIN" component={SignIn} />
+        <Stack.Screen name="Home" component={Home} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 };
 
 export default App;
