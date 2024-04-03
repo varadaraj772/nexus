@@ -1,15 +1,23 @@
 /* eslint-disable prettier/prettier */
 import React, {useState} from 'react';
+import {Avatar, Button, Text, TextInput} from 'react-native-paper';
+import auth from '@react-native-firebase/auth';
 import {
   Alert,
-  Button,
   Pressable,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
+
+const theme = {
+  colors: {
+    primary: '#F08080', // Light coral (Create Account button)
+    secondary: '#3F51B5', // Indigo (text and icons)
+    background: '#F5F5F5', // Light gray (background)
+  },
+};
+
 export default function SignUp({navigation}) {
   const Signup = (email: string, password: string) => {
     auth()
@@ -30,37 +38,33 @@ export default function SignUp({navigation}) {
     }
     Signup(email, password);
   };
-  const [username, setUsername] = useState('');
   return (
     <SafeAreaView style={styles.container}>
       <TextInput
-        style={styles.input}
-        placeholder="Username"
-        onChangeText={setUsername}
-        value={username}
-      />
-      <TextInput
-        placeholder="Email"
+        label="Email"
+        mode="outlined"
         onChangeText={setEmail}
         value={email}
         style={styles.input}
-        placeholderTextColor="#0D0707"
       />
       <TextInput
-        placeholder="Password"
+        label="Password"
         onChangeText={setPassword}
+        placeholder="enter emil"
+        mode="outlined"
         value={password}
         secureTextEntry
         style={styles.input}
-        placeholderTextColor="#0D0707"
       />
-      <Pressable onPress={handleSignup} style={styles.btn}>
-        <Text style={styles.txt}>CREATE ACCOUNT</Text>
-      </Pressable>
+      <Button onPress={handleSignup} mode="elevated" style={styles.input}>
+        CREATE ACCOUNT
+      </Button>
       <Button
-        title="go to sign in"
+        mode="outlined"
         onPress={() => navigation.navigate('LOGIN')}
-      />
+        style={styles.input}>
+        go to login
+      </Button>
     </SafeAreaView>
   );
 }
@@ -68,34 +72,17 @@ export default function SignUp({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#255957',
+  },
+  scrollContent: {
+    alignItems: 'center',
   },
   input: {
-    width: '100%',
-    height: 50,
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 5,
-    backgroundColor: '#E2F3F2',
-    fontSize: 16,
-    borderBottomColor: '#ccc',
-  },
-  btn: {
-    width: '100%',
-    height: 50,
-    padding: 15,
-    borderRadius: 8,
-    backgroundColor: '#FE7F48',
-    alignItems: 'center',
     marginTop: 10,
-    justifyContent: 'center',
+    width: '80%',
   },
-  txt: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0D0707',
+  button: {
+    marginTop: 20,
   },
 });

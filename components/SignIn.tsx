@@ -8,8 +8,9 @@ import {
   Button,
   Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 export default function SignIn({navigation}) {
   const [email, setEmail] = useState('');
@@ -24,7 +25,25 @@ export default function SignIn({navigation}) {
         Alert.alert(error.nativeErrorMessage);
       });
   }
-
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '193011697623-97rbr611a14fius03v97u8tvajjneigf.apps.googleusercontent.com',
+    });
+  }, []);
+  async function onGoogleButtonPress() {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      const {idToken} = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      return auth().signInWithCredential(googleCredential);
+    } catch (error) {
+      console.log(error);
+      console.log(error);
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <TextInput
@@ -47,6 +66,12 @@ export default function SignIn({navigation}) {
         <Text style={styles.txt}>LOGIN</Text>
       </Pressable>
       <Button title="go to home" onPress={() => navigation.navigate('HOME')} />
+      <Button
+        title="Google Sign-In"
+        onPress={() =>
+          onGoogleButtonPress().then(() => navigation.navigate('HOME'))
+        }
+      />
     </SafeAreaView>
   );
 }
