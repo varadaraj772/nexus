@@ -12,7 +12,11 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen name="WELCOME" component={Welcome} />
+        <Stack.Screen
+          name="WELCOME"
+          component={Welcome}
+          options={{headerShown: false}}
+        />
         <Stack.Screen name="CREATE ACCOUNT" component={SignUp} />
         <Stack.Screen name="LOGIN" component={SignIn} />
         <Stack.Screen name="HOME" component={Home} />

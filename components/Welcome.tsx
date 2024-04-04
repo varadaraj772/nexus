@@ -1,41 +1,72 @@
-import {
-    FAB, Text,
-} from 'react-native-paper';
-import React from 'react'
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+/* eslint-disable prettier/prettier */
+import React, {useEffect} from 'react';
+import {FAB, Text} from 'react-native-paper';
+import {SafeAreaView, StyleSheet, View, Image, StatusBar} from 'react-native';
+import {LinearGradient} from 'react-native-linear-gradient';
 
+export default function Welcome({navigation}) {
+  useEffect(() => {
+    StatusBar.setBackgroundColor('#0c0c0c');
+  }, []);
 
-export default function Welcome({ navigation }) {
-    return (
-        <SafeAreaView>
-            <View>
-                <View>
-                    <Text variant="displayLarge">WELCOME TO NEXUS</Text>
-                </View>
-                <View>
-                    <FAB
-                        label='SIGN IN'
-                        onPress={() => navigation.navigate('LOGIN')} />
-                    <FAB
-                        label='SIGN UP'
-                        onPress={() => navigation.navigate('CREATE ACCOUNT')} 
-                        style={styles.button}/>
-                </View>
-            </View>
-        </SafeAreaView>
-    )
+  return (
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image source={require('../assets/logo.jpg')} style={styles.logo} />
+      </View>
+      <View style={styles.contentContainer}>
+        <Text variant="displayLarge">WELCOME TO NEXUS</Text>
+        <View style={styles.buttonContainer}>
+          <FAB
+            label="SIGN IN"
+            onPress={() => navigation.navigate('LOGIN')}
+            style={styles.button}
+          />
+          <FAB
+            label="SIGN UP"
+            onPress={() => navigation.navigate('CREATE ACCOUNT')}
+            style={styles.button}
+          />
+        </View>
+      </View>
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'space-around',
-        alignItems: 'center',
-    },
-    input: {
-        marginTop: 10,
-        width: '50%',
-    },
-    button: {
-        marginTop: 20,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fcf5ff',
+  },
+  logoContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 460,
+    height: 460,
+    resizeMode: 'contain',
+    borderRadius: 100,
+  },
+  buttonContainer: {
+    marginTop: 40,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '90%',
+  },
+  button: {
+    width: '50%',
+    margin: 5,
+  },
+  gradient: {
+    flex: 1,
+  },
 });

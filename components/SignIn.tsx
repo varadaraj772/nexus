@@ -10,6 +10,7 @@ import {
   Dialog,
   Portal,
   Text,
+  Icon,
 } from 'react-native-paper';
 const theme = {
   colors: {
@@ -74,7 +75,10 @@ export default function SignIn({navigation}) {
           style={styles.input}>
           LOGIN
         </Button>
-        <Button onPress={() => navigation.navigate('HOME')} mode="text">
+        <Button
+          icon="mouse"
+          onPress={() => navigation.navigate('HOME')}
+          mode="text">
           HOME
         </Button>
       </SafeAreaView>
