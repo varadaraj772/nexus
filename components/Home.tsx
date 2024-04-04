@@ -55,8 +55,8 @@ export default function Home() {
     {
       key: 'Posts',
       title: 'Posts',
-      focusedIcon: 'music',
-      unfocusedIcon: 'home',
+      focusedIcon: 'heart',
+      unfocusedIcon: 'heart-outline',
     },
     {key: 'Status', title: 'Status', focusedIcon: 'album'},
     {key: 'Message', title: 'Message', focusedIcon: 'history'},

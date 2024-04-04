@@ -6,11 +6,13 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import SignIn from './components/SignIn';
 import Home from './components/Home';
+import Welcome from './components/Welcome';
 const Stack = createStackNavigator();
 const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen name="WELCOME" component={Welcome} />
         <Stack.Screen name="CREATE ACCOUNT" component={SignUp} />
         <Stack.Screen name="LOGIN" component={SignIn} />
         <Stack.Screen name="HOME" component={Home} />
