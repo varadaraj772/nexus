@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import {StyleSheet, SafeAreaView} from 'react-native';
+import {StyleSheet, SafeAreaView, StatusBar} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
@@ -10,8 +10,8 @@ import {
   Dialog,
   Portal,
   Text,
-  Icon,
 } from 'react-native-paper';
+import {Image} from 'react-native';
 const theme = {
   colors: {
     primary: '#F08080',
@@ -21,6 +21,9 @@ const theme = {
 };
 
 export default function SignIn({navigation}) {
+  useEffect(() => {
+    StatusBar.setBackgroundColor('gray');
+  }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -42,16 +45,10 @@ export default function SignIn({navigation}) {
         setErrmsg(error.nativeErrorMessage);
       });
   }
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId:
-        '193011697623-97rbr611a14fius03v97u8tvajjneigf.apps.googleusercontent.com',
-    });
-  }, []);
-
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
+        <Image source={require('../assets/login.png')} style={styles.image} />
         <TextInput
           label="Email"
           mode="outlined"
@@ -69,16 +66,10 @@ export default function SignIn({navigation}) {
           secureTextEntry
           style={styles.input}
         />
-        <Button
-          onPress={handleSignUp}
-          mode="contained-tonal"
-          style={styles.input}>
+        <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
         </Button>
-        <Button
-          icon="mouse"
-          onPress={() => navigation.navigate('HOME')}
-          mode="text">
+        <Button onPress={() => navigation.navigate('HOME')} mode="text">
           HOME
         </Button>
       </SafeAreaView>
@@ -99,18 +90,27 @@ export default function SignIn({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.background,
   },
-  scrollContent: {
-    alignItems: 'center',
+  image: {
+    width: '100%',
+    height: '50%',
+    resizeMode: 'cover',
+    marginBottom: '10%',
   },
   input: {
-    marginTop: 10,
-    width: '80%',
+    marginBottom: 10,
+    width: '90%',
+  },
+  buttonsContainer: {
+    justifyContent: 'center',
   },
   button: {
-    marginTop: 20,
+    width: '80%',
+    padding: 20,
+    marginTop: '5%',
+    fontSize: 20,
   },
 });

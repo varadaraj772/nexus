@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Button,
   Text,
@@ -10,54 +10,13 @@ import {
 } from 'react-native-paper';
 
 import auth from '@react-native-firebase/auth';
-import {SafeAreaView, StyleSheet} from 'react-native';
-
-const theme = {
-  'colors': {
-    'primary': 'rgb(120, 69, 172)',
-    'onPrimary': 'rgb(255, 255, 255)',
-    'primaryContainer': 'rgb(240, 219, 255)',
-    'onPrimaryContainer': 'rgb(44, 0, 81)',
-    'secondary': 'rgb(102, 90, 111)',
-    'onSecondary': 'rgb(255, 255, 255)',
-    'secondaryContainer': 'rgb(237, 221, 246)',
-    'onSecondaryContainer': 'rgb(33, 24, 42)',
-    'tertiary': 'rgb(128, 81, 88)',
-    'onTertiary': 'rgb(255, 255, 255)',
-    'tertiaryContainer': 'rgb(255, 217, 221)',
-    'onTertiaryContainer': 'rgb(50, 16, 23)',
-    'error': 'rgb(186, 26, 26)',
-    'onError': 'rgb(255, 255, 255)',
-    'errorContainer': 'rgb(255, 218, 214)',
-    'onErrorContainer': 'rgb(65, 0, 2)',
-    'background': 'rgb(255, 251, 255)',
-    'onBackground': 'rgb(29, 27, 30)',
-    'surface': 'rgb(255, 251, 255)',
-    'onSurface': 'rgb(29, 27, 30)',
-    'surfaceVariant': 'rgb(233, 223, 235)',
-    'onSurfaceVariant': 'rgb(74, 69, 78)',
-    'outline': 'rgb(124, 117, 126)',
-    'outlineVariant': 'rgb(204, 196, 206)',
-    'shadow': 'rgb(0, 0, 0)',
-    'scrim': 'rgb(0, 0, 0)',
-    'inverseSurface': 'rgb(50, 47, 51)',
-    'inverseOnSurface': 'rgb(245, 239, 244)',
-    'inversePrimary': 'rgb(220, 184, 255)',
-    'elevation': {
-      'level0': 'transparent',
-      'level1': 'rgb(248, 242, 251)',
-      'level2': 'rgb(244, 236, 248)',
-      'level3': 'rgb(240, 231, 246)',
-      'level4': 'rgb(239, 229, 245)',
-      'level5': 'rgb(236, 226, 243)'
-    },
-    'surfaceDisabled': 'rgba(29, 27, 30, 0.12)',
-    'onSurfaceDisabled': 'rgba(29, 27, 30, 0.38)',
-    'backdrop': 'rgba(51, 47, 55, 0.4)'
-  }
-};
+import {Image, SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 
 export default function SignUp({navigation}) {
+  useEffect(() => {
+    StatusBar.setBackgroundColor('gray');
+  }, []);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -89,6 +48,7 @@ export default function SignUp({navigation}) {
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
+        <Image source={require('../assets/signup.png')} style={styles.image} />
         <TextInput
           label="Email"
           mode="outlined"
@@ -106,18 +66,17 @@ export default function SignUp({navigation}) {
           secureTextEntry
           style={styles.input}
         />
-        <Button
-          onPress={handleSignup}
-          mode="elevated"
-          style={styles.input}>
-          CREATE ACCOUNT
-        </Button>
-        <Button
-          mode="contained-tonal"
-          onPress={() => navigation.navigate('LOGIN')}
-          style={styles.input}>
-          GO TO LOGIN
-        </Button>
+        <View style={styles.buttonsContainer}>
+          <Button mode="elevated" style={styles.button} onPress={handleSignup}>
+            CREATE ACCOUNT
+          </Button>
+          <Button
+            mode="contained-tonal"
+            style={styles.button}
+            onPress={() => navigation.navigate('LOGIN')}>
+            GO TO LOGIN
+          </Button>
+        </View>
         <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
             <Dialog.Title>Error</Dialog.Title>
@@ -137,18 +96,27 @@ export default function SignUp({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.background,
   },
-  scrollContent: {
-    alignItems: 'center',
+  image: {
+    width: '100%',
+    height: 400,
+    resizeMode: 'cover',
+    marginBottom: '20%',
   },
   input: {
-    marginTop: 10,
-    width: '80%',
+    marginBottom: 10,
+    width: '90%',
+  },
+  buttonsContainer: {
+    justifyContent: 'center',
   },
   button: {
-    marginTop: 20,
+    width: '80%',
+    padding: 10,
+    marginTop: '5%',
+    fontSize: 20,
   },
 });

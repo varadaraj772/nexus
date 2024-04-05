@@ -17,8 +17,16 @@ const App = () => {
           component={Welcome}
           options={{headerShown: false}}
         />
-        <Stack.Screen name="CREATE ACCOUNT" component={SignUp} />
-        <Stack.Screen name="LOGIN" component={SignIn} />
+        <Stack.Screen
+          name="CREATE ACCOUNT"
+          component={SignUp}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="LOGIN"
+          component={SignIn}
+          options={{headerShown: false}}
+        />
         <Stack.Screen name="HOME" component={Home} />
       </Stack.Navigator>
     </NavigationContainer>
