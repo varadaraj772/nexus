@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-import {StyleSheet, SafeAreaView, StatusBar} from 'react-native';
+import {StyleSheet, SafeAreaView, StatusBar, Alert} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+
 import {
   PaperProvider,
   TextInput,
@@ -21,9 +22,12 @@ const theme = {
 };
 
 export default function SignIn({navigation}) {
-  useEffect(() => {
-    StatusBar.setBackgroundColor('gray');
-  }, []);
+  useEffect(() => {}, []);
+  GoogleSignin.configure({
+    webClientId:
+      '193011697623-ah7itvkhtbm61maghr4ki2i97kj90poa.apps.googleusercontent.com',
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -41,10 +45,24 @@ export default function SignIn({navigation}) {
       .then(() => {
         navigation.navigate('HOME');
       })
-      .catch((error: {nativeErrorMessage: string}) => {
+      .catch(error => {
+        Alert.alert(error.nativeErrorMessage);
         setErrmsg(error.nativeErrorMessage);
+        showDialog();
       });
   }
+  async function onGoogleButtonPress() {
+    try {
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      const {idToken} = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const firebaseUser = await auth().signInWithCredential(googleCredential);
+      console.log('Sign-in successful:', firebaseUser);
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+    }
+  }
+
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
@@ -71,6 +89,14 @@ export default function SignIn({navigation}) {
         </Button>
         <Button onPress={() => navigation.navigate('HOME')} mode="text">
           HOME
+        </Button>
+        <Button
+          onPress={() =>
+            onGoogleButtonPress().then(() =>
+              console.log('Signed in with Google!'),
+            )
+          }>
+          Google
         </Button>
       </SafeAreaView>
       <Portal>
