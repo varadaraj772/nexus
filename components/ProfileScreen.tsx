@@ -1,17 +1,17 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, SafeAreaView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth'; // Import for user ID
+import auth from '@react-native-firebase/auth';
+import {ActivityIndicator, Avatar} from 'react-native-paper';
 
 const ProfileScreen = () => {
   const [userData, setUserData] = useState(null);
-  const user = auth().currentUser; // Get the current user
- // console.log(user);
-  // Handle potential errors during data fetching
+  const user = auth().currentUser;
+  // console.log(user);
+
   const handleError = error => {
     console.error('Error fetching user data:', error);
-    // Optionally display an error message to the user
   };
 
   useEffect(() => {
@@ -33,17 +33,23 @@ const ProfileScreen = () => {
     };
 
     fetchUserData();
-  }, [user]); // Dependency on user object
+  }, [user]);
 
   if (!userData) {
-    return <Text>Loading profile data...</Text>;
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator animating={true} size={'large'} />
+      </SafeAreaView>
+    );
   }
 
   return (
     <View style={styles.container}>
+      <Avatar.Text size={100} label="V" />
       <Text>Name: {userData.FullName}</Text>
       <Text>Email: {userData.Email}</Text>
       <Text>Username: {userData.UserName}</Text>
+      <Text>Mobile Number: {userData.MobileNo}</Text>
       {/* Display other user details as needed */}
     </View>
   );

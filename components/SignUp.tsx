@@ -26,17 +26,17 @@ export default function SignUp({navigation}) {
   const [mobileNo, setMobileNo] = useState('');
   const [visible, setVisible] = useState(false);
   const [errmsg, setErrmsg] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // Track loading state
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
   const handleSignup = async () => {
     if (!validateForm()) {
-      return; // Prevent signup if validation fails
+      return;
     }
 
-    setIsLoading(true); // Set loading state
+    setIsLoading(true);
 
     try {
       const usernameExists = await checkUsernameExists(username);
@@ -61,11 +61,11 @@ export default function SignUp({navigation}) {
       });
       setErrmsg('User Created Successfully!');
       showDialog();
-      navigation.navigate('HOME'); // Navigate to home after success
+      navigation.navigate('HOME');
     } catch (error) {
-      handleSignupError(error); // Handle signup errors
+      handleSignupError(error);
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false);
     }
   };
 
@@ -73,7 +73,6 @@ export default function SignUp({navigation}) {
     const errorCodes = {
       'auth/email-already-in-use': 'Email already in use',
       'auth/weak-password': 'Password is too weak',
-      // Add more error codes as needed
     };
     setErrmsg(errorCodes[error.code] || 'Signup failed. Please try again.');
     showDialog();
@@ -104,11 +103,9 @@ export default function SignUp({navigation}) {
       showDialog();
       return false;
     }
-
-    // You can add more validation checks here (e.g., password strength)
     return true;
   };
-
+  const iconName = showPassword ? 'eye' : 'eye-off';
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
@@ -127,8 +124,14 @@ export default function SignUp({navigation}) {
           placeholder="Enter password"
           mode="outlined"
           value={password}
-          secureTextEntry
+          secureTextEntry={!showPassword}
           style={styles.input}
+          right={
+            <TextInput.Icon
+              icon={iconName}
+              onPress={() => setShowPassword(!showPassword)}
+            />
+          }
         />
         <TextInput
           label="Username"

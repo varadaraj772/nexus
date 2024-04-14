@@ -27,7 +27,11 @@ const App = () => {
           component={SignIn}
           options={{headerShown: false}}
         />
-        <Stack.Screen name="HOME" component={Home} />
+        <Stack.Screen
+          name="HOME"
+          component={Home}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

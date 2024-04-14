@@ -2,7 +2,6 @@
 import {StyleSheet, SafeAreaView, StatusBar, Alert} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 import {
   PaperProvider,
@@ -26,6 +25,7 @@ const onGoogleButtonPress = async () => {};
 export default function SignIn({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [visible, setVisible] = useState(false);
   const [errmsg, setErrmsg] = useState('');
   const showDialog = () => setVisible(true);
@@ -48,6 +48,7 @@ export default function SignIn({navigation}) {
       });
   }
 
+  const iconName = showPassword ? 'eye' : 'eye-off';
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
@@ -66,13 +67,19 @@ export default function SignIn({navigation}) {
           placeholder="Enter password"
           mode="outlined"
           value={password}
-          secureTextEntry
+          secureTextEntry={!showPassword}
           style={styles.input}
+          right={
+            <TextInput.Icon
+              icon={iconName}
+              onPress={() => setShowPassword(!showPassword)}
+            />
+          }
         />
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
         </Button>
-        <Button onPress={() => navigation.navigate('AddInfo')} mode="text">
+        <Button onPress={() => navigation.navigate('HOME')} mode="text">
           HOme
         </Button>
         <Button onPress={onGoogleButtonPress}>Google</Button>

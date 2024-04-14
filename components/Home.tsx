@@ -4,13 +4,14 @@ import messaging from '@react-native-firebase/messaging';
 import {BottomNavigation, Text} from 'react-native-paper';
 import {StyleSheet, View} from 'react-native';
 import ProfileScreen from './ProfileScreen';
-const HomeRoute = () => {
+import HomeScreen from './HomeScreen';
+/*const HomeRoute = () => {
   return (
     <View style={styles.container}>
       <Text>Home </Text>
     </View>
   );
-};
+};*/
 
 const SearchRoute = () => {
   return (
@@ -94,7 +95,7 @@ export default function Home() {
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    Home: HomeRoute,
+    Home: HomeScreen,
     Search: SearchRoute,
     Post: PostRoute,
     Chat: ChatRoute,
