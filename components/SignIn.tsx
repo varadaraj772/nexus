@@ -13,6 +13,7 @@ import {
   Text,
 } from 'react-native-paper';
 import {Image} from 'react-native';
+
 const theme = {
   colors: {
     primary: '#F08080',
@@ -20,14 +21,9 @@ const theme = {
     background: '#F5F5F5',
   },
 };
+const onGoogleButtonPress = async () => {};
 
 export default function SignIn({navigation}) {
-  useEffect(() => {}, []);
-  GoogleSignin.configure({
-    webClientId:
-      '193011697623-ah7itvkhtbm61maghr4ki2i97kj90poa.apps.googleusercontent.com',
-  });
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
@@ -50,17 +46,6 @@ export default function SignIn({navigation}) {
         setErrmsg(error.nativeErrorMessage);
         showDialog();
       });
-  }
-  async function onGoogleButtonPress() {
-    try {
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-      const {idToken} = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      const firebaseUser = await auth().signInWithCredential(googleCredential);
-      console.log('Sign-in successful:', firebaseUser);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-    }
   }
 
   return (
@@ -87,17 +72,10 @@ export default function SignIn({navigation}) {
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
         </Button>
-        <Button onPress={() => navigation.navigate('HOME')} mode="text">
-          HOME
+        <Button onPress={() => navigation.navigate('AddInfo')} mode="text">
+          HOme
         </Button>
-        <Button
-          onPress={() =>
-            onGoogleButtonPress().then(() =>
-              console.log('Signed in with Google!'),
-            )
-          }>
-          Google
-        </Button>
+        <Button onPress={onGoogleButtonPress}>Google</Button>
       </SafeAreaView>
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>

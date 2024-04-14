@@ -3,6 +3,23 @@ import React, {useEffect, useState} from 'react';
 import messaging from '@react-native-firebase/messaging';
 import {BottomNavigation, Text} from 'react-native-paper';
 import {StyleSheet, View} from 'react-native';
+import ProfileScreen from './ProfileScreen';
+const HomeRoute = () => {
+  return (
+    <View style={styles.container}>
+      <Text>Home </Text>
+    </View>
+  );
+};
+
+const SearchRoute = () => {
+  return (
+    <View style={styles.container}>
+      <Text>Search</Text>
+    </View>
+  );
+};
+
 const PostRoute = () => {
   return (
     <View style={styles.container}>
@@ -11,29 +28,20 @@ const PostRoute = () => {
   );
 };
 
-const StatusRoute = () => {
+const ChatRoute = () => {
   return (
     <View style={styles.container}>
-      <Text>Status</Text>
+      <Text>Chat</Text>
     </View>
   );
 };
-
-const MessageRoute = () => {
+/*const ProfileRoute = () => {
   return (
     <View style={styles.container}>
-      <Text>Messages</Text>
+      <Text>Profile</Text>
     </View>
   );
-};
-
-const CallRoute = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Calls</Text>
-    </View>
-  );
-};
+};*/
 export default function Home() {
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
@@ -53,25 +61,44 @@ export default function Home() {
   const [index, setIndex] = React.useState(0);
   const [routes] = useState([
     {
-      key: 'Posts',
-      title: 'Posts',
-      focusedIcon: 'heart',
-      unfocusedIcon: 'heart-outline',
+      key: 'Home',
+      title: 'HOME',
+      focusedIcon: 'home',
+      unfocusedIcon: 'home-outline',
     },
-    {key: 'Status', title: 'Status', focusedIcon: 'album'},
-    {key: 'Message', title: 'Message', focusedIcon: 'history'},
     {
-      key: 'Call',
-      title: 'Call',
-      focusedIcon: 'bell',
+      key: 'Search',
+      title: 'SEARCH',
+      focusedIcon: 'account-search',
+      unfocusedIcon: 'account-search',
+    },
+    {
+      key: 'Post',
+      title: 'ADD POST',
+      focusedIcon: 'plus-circle',
+      unfocusedIcon: 'plus-circle-outline',
+    },
+    {
+      key: 'Chat',
+      title: 'CHAT',
+      focusedIcon: 'message',
+      unfocusedIcon: 'message-outline',
+    },
+
+    {
+      key: 'Profile',
+      title: 'PROFILE',
+      focusedIcon: 'account-circle-outline',
+      unfocusedIcon: 'account-circle',
     },
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    Posts: PostRoute,
-    Status: StatusRoute,
-    Message: MessageRoute,
-    Call: CallRoute,
+    Home: HomeRoute,
+    Search: SearchRoute,
+    Post: PostRoute,
+    Chat: ChatRoute,
+    Profile: ProfileScreen,
   });
 
   return (
