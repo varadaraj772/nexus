@@ -5,6 +5,7 @@ import {BottomNavigation, Text} from 'react-native-paper';
 import {StyleSheet, View} from 'react-native';
 import ProfileScreen from './ProfileScreen';
 import HomeScreen from './HomeScreen';
+import PostScreen from './PostScreen';
 /*const HomeRoute = () => {
   return (
     <View style={styles.container}>
@@ -21,13 +22,13 @@ const SearchRoute = () => {
   );
 };
 
-const PostRoute = () => {
+/*const PostRoute = () => {
   return (
     <View style={styles.container}>
       <Text>Posts</Text>
     </View>
   );
-};
+};*/
 
 const ChatRoute = () => {
   return (
@@ -97,7 +98,7 @@ export default function Home() {
   const renderScene = BottomNavigation.SceneMap({
     Home: HomeScreen,
     Search: SearchRoute,
-    Post: PostRoute,
+    Post: PostScreen,
     Chat: ChatRoute,
     Profile: ProfileScreen,
   });
