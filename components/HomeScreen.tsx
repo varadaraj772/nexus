@@ -79,7 +79,6 @@ const HomeScreen = ({navigation}) => {
       <Card.Content>
         <Text variant="titleLarge">{userData.UserName}</Text>
       </Card.Content>
-     
       <Card.Content>
         <Text variant="bodyLarge">{post.content}</Text>
       </Card.Content>
