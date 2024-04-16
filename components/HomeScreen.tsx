@@ -1,21 +1,26 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
+import {Alert, SafeAreaView, ScrollView, StyleSheet} from 'react-native';
 import {
+  Appbar,
+  Button,
+  Card,
+  Divider,
+  Image,
+  Text,
   ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import {Appbar, Avatar, Button, Card, Divider, Text} from 'react-native-paper';
+  IconButton,
+} from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
   const [userData, setUserData] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = auth().currentUser;
+  console.log(user);
+
   const handleError = error => {
     console.error('Error fetching user data or posts:', error);
     Alert.alert('Error', 'An error occurred. Please try again later.');
@@ -58,44 +63,41 @@ const HomeScreen = ({navigation}) => {
     fetchPosts();
   }, []);
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator animating={true} size={'large'} />
-      </SafeAreaView>
-    );
-  }
+  const renderPost = post => {
+    const hasImage = !!post.imageUrl;
+    const contentPadding = hasImage ? 16 : 24; // Adjust padding based on image presence
 
-  if (!userData) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>No user data found.</Text>
-      </SafeAreaView>
+      <Card key={post.id} style={styles.card}>
+        <Text variant="titleLarge" style={styles.username}>
+          {userData?.UserName}
+        </Text>
+        {hasImage && (
+          <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
+        )}
+        <Card.Content style={{padding: contentPadding}}>
+          <Text variant="bodyLarge">{post.content}</Text>
+        </Card.Content>
+        <Card.Actions style={styles.cardActions}>
+          <IconButton
+            icon="cards-heart-outline"
+            size={24}
+            mode="contained-tonal"
+          />
+          <IconButton
+            icon="comment-flash-outline"
+            size={24}
+            mode="contained-tonal"
+          />
+          <IconButton
+            icon="share-variant-outline"
+            size={24}
+            mode="contained-tonal"
+          />
+        </Card.Actions>
+      </Card>
     );
-  }
-
-  const renderPost = post => (
-    <Card key={post.id}>
-      <Card.Content>
-        <Text variant="titleLarge">{userData.UserName}</Text>
-      </Card.Content>
-      <Card.Content>
-        <Text variant="bodyLarge">{post.content}</Text>
-      </Card.Content>
-      <Card.Actions>
-        <Button icon="fire" mode="contained-tonal">
-          Yaass!
-        </Button>
-        <Button icon="comment-quote" mode="contained-tonal">
-          Gush
-        </Button>
-        <Button icon="share-variant-outline" mode="contained-tonal">
-          Share
-        </Button>
-      </Card.Actions>
-      <Divider />
-    </Card>
-  );
+  };
 
   return (
     <>
@@ -103,29 +105,47 @@ const HomeScreen = ({navigation}) => {
         <Appbar.BackAction onPress={() => {}} />
         <Appbar.Content title="POSTS" />
       </Appbar.Header>
-      {posts.length > 0 ? (
-        <ScrollView>{posts.map(renderPost)}</ScrollView>
+      {loading ? (
+        <SafeAreaView style={styles.container}>
+          <ActivityIndicator animating={true} size={'large'} />
+        </SafeAreaView>
       ) : (
-        <Text>No posts found.</Text>
+        <ScrollView>
+          {posts.length > 0 ? (
+            posts.map(renderPost)
+          ) : (
+            <Text>No posts found.</Text>
+          )}
+        </ScrollView>
       )}
     </>
   );
 };
 
 export default HomeScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heading: {
-    marginTop: 20,
-    fontSize: 20,
-    fontWeight: 'bold',
+  card: {
+    marginBottom: 16,
+    borderRadius: 10,
+    flex: 1,
   },
-  userInfo: {
-    marginBottom: 20,
+  username: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  cardContent: {
+    paddingHorizontal: 16,
+  },
+  cardActions: {
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  img: {
+    height: 500,
   },
 });

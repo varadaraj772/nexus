@@ -1,25 +1,31 @@
 /* eslint-disable prettier/prettier */
-import {View, Text, Button, Image} from 'react-native';
 import React, {useState} from 'react';
-import {TextInput} from 'react-native-paper';
+import {View, StyleSheet} from 'react-native';
 import {
-  ImageLibraryOptions,
-  launchImageLibrary,
-  MediaType,
-} from 'react-native-image-picker';
-import storage from '@react-native-firebase/storage'; // Import for storage
-import auth from '@react-native-firebase/auth';
+  TextInput,
+  Avatar,
+  IconButton,
+  Button,
+  ActivityIndicator,
+} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native'; // Import for navigation
+import {launchImageLibrary} from 'react-native-image-picker'; // Import for image picker
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
+import {SafeAreaView} from 'react-native';
 
 const PostScreen = () => {
-  const [postText, setPostText] = useState(''); // State for post content
-  const [image, setImage] = useState(null); // State for image
+  const [postText, setPostText] = useState('');
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const navigation = useNavigation();
 
-  // Function to pick an image from the device
   const pickImage = async () => {
-    const options: ImageLibraryOptions = {
-      mediaType: 'photo', // Or MediaType.VIDEO for videos
+    const options = {
+      mediaType: 'photo',
       quality: 1,
+      selectionLimit: 1,
     };
 
     try {
@@ -29,7 +35,6 @@ const PostScreen = () => {
       } else if (result.error) {
         console.error('ImagePicker Error:', result.error);
       } else {
-        console.log(result.assets[0].uri);
         const source = {uri: result.assets[0].uri};
         setImage(source);
       }
@@ -42,6 +47,8 @@ const PostScreen = () => {
     if (!postText || postText.trim() === '') {
       return;
     }
+
+    setUploading(true);
 
     try {
       const user = auth().currentUser;
@@ -65,28 +72,75 @@ const PostScreen = () => {
         createdAt: timestamp,
         imageUrl,
       });
+
       setPostText('');
-      setImage(null); 
+      setImage(null);
+      setUploading(false);
+      navigation.goBack();
     } catch (e) {
       console.error('Error adding post:', e);
+      setUploading(false);
     }
   };
 
   return (
-    <View style={{padding: 20}}>
-      {/* Conditionally render image based on image state */}
-      {image && <Image source={image} style={{width: 200, height: 200}} />}
-      <Button title="Pick Image" onPress={pickImage} />
+    <SafeAreaView style={styles.container}>
+      {image && (
+        <Avatar.Image size={100} style={styles.imagePreview} source={image} />
+      )}
       <TextInput
         label="Write your post..."
         value={postText}
         onChangeText={setPostText}
         multiline
         numberOfLines={4}
+        style={styles.textInput}
       />
-      <Button title="Submit Post" onPress={handlePostSubmit} />
-    </View>
+      <View style={styles.buttonRow}>
+        <IconButton icon="image" onPress={pickImage} mode="contained-tonal" />
+        <Button
+          mode="contained-tonal"
+          style={styles.postbtn}
+          onPress={handlePostSubmit}>
+          ADD POST
+        </Button>
+      </View>
+      {uploading && (
+        <ActivityIndicator
+          size="large"
+          animating={true}
+          style={styles.activityIndicator}
+        />
+      )}
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  imagePreview: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  textInput: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  activityIndicator: {
+    marginTop: 20,
+  },
+  postbtn: {
+    width: '80%',
+  },
+});
 
 export default PostScreen;

@@ -3,13 +3,12 @@ import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet, SafeAreaView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {ActivityIndicator, Avatar} from 'react-native-paper';
+import {ActivityIndicator, Avatar, Button} from 'react-native-paper';
+import SignIn from './SignIn';
 
 const ProfileScreen = () => {
   const [userData, setUserData] = useState(null);
   const user = auth().currentUser;
-  // console.log(user);
-
   const handleError = error => {
     console.error('Error fetching user data:', error);
   };
@@ -50,7 +49,6 @@ const ProfileScreen = () => {
       <Text>Email: {userData.Email}</Text>
       <Text>Username: {userData.UserName}</Text>
       <Text>Mobile Number: {userData.MobileNo}</Text>
-      {/* Display other user details as needed */}
     </View>
   );
 };

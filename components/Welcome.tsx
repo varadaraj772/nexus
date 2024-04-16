@@ -1,11 +1,15 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect} from 'react';
 import {FAB, Text} from 'react-native-paper';
-import {SafeAreaView, StyleSheet, View, Image, StatusBar} from 'react-native';
-import {LinearGradient} from 'react-native-linear-gradient';
+import {StyleSheet, View, Image, StatusBar} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 export default function Welcome({navigation}) {
+  const user = auth().currentUser;
   useEffect(() => {
+    if (user) {
+      return navigation.navigate('HOME');
+    }
     StatusBar.setBackgroundColor('#0c0c0c');
   }, []);
 

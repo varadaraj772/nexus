@@ -3,11 +3,11 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import SignUp from './components/SignUp';
 import {createStackNavigator} from '@react-navigation/stack';
-
 import SignIn from './components/SignIn';
 import Home from './components/Home';
 import Welcome from './components/Welcome';
 import HomeScreen from './components/HomeScreen';
+import ProfileScreen from './components/ProfileScreen';
 const Stack = createStackNavigator();
 const App = () => {
   return (

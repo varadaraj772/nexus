@@ -1,18 +1,12 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
-import messaging from '@react-native-firebase/messaging';
+import auth from '@react-native-firebase/auth';
 import {BottomNavigation, Text} from 'react-native-paper';
-import {StyleSheet, View} from 'react-native';
+import {Alert, StyleSheet, View} from 'react-native';
 import ProfileScreen from './ProfileScreen';
 import HomeScreen from './HomeScreen';
 import PostScreen from './PostScreen';
-/*const HomeRoute = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Home </Text>
-    </View>
-  );
-};*/
+import SignIn from './SignIn';
 
 const SearchRoute = () => {
   return (
@@ -21,15 +15,6 @@ const SearchRoute = () => {
     </View>
   );
 };
-
-/*const PostRoute = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Posts</Text>
-    </View>
-  );
-};*/
-
 const ChatRoute = () => {
   return (
     <View style={styles.container}>
@@ -37,27 +22,13 @@ const ChatRoute = () => {
     </View>
   );
 };
-/*const ProfileRoute = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Profile</Text>
-    </View>
-  );
-};*/
-export default function Home() {
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  }
-  const getToken = async () => {
-    const token = await messaging().getToken();
-    console.log('TOKEN---------', token);
-  };
+
+export default function Home({navigation}) {
   useEffect(() => {
-    requestUserPermission();
-    getToken();
+    const user = auth().currentUser;
+    if (!user) {
+      navigation.navigate('LOGIN');
+    }
   }, []);
 
   const [index, setIndex] = React.useState(0);
