@@ -1,14 +1,15 @@
-/* eslint-disable prettier/prettier */
+/* eslint-disable */
 import React, {useEffect, useState} from 'react';
 import {Text, View, StyleSheet, SafeAreaView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {ActivityIndicator, Avatar, Button} from 'react-native-paper';
-import SignIn from './SignIn';
+import {ActivityIndicator, Avatar, Button, Divider} from 'react-native-paper';
 
-const ProfileScreen = () => {
+const ProfileScreen = props => {
   const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const user = auth().currentUser;
+
   const handleError = error => {
     console.error('Error fetching user data:', error);
   };
@@ -17,9 +18,10 @@ const ProfileScreen = () => {
     const fetchUserData = async () => {
       if (user) {
         try {
+          setIsLoading(true);
           const docRef = firestore().collection('users').doc(user.uid);
+
           const docSnapshot = await docRef.get();
-          console.log(docSnapshot.data);
           if (docSnapshot.exists) {
             setUserData(docSnapshot.data());
           } else {
@@ -27,6 +29,8 @@ const ProfileScreen = () => {
           }
         } catch (error) {
           handleError(error);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
@@ -42,13 +46,38 @@ const ProfileScreen = () => {
     );
   }
 
+  const SignOut = () => {
+    auth().signOut();
+    props.jumpTo('Home');
+  };
+
+  const imgData = userData?.imageurl && {uri: userData.imageurl};
+
   return (
     <View style={styles.container}>
-      <Avatar.Text size={100} label="V" />
-      <Text>Name: {userData.FullName}</Text>
-      <Text>Email: {userData.Email}</Text>
-      <Text>Username: {userData.UserName}</Text>
-      <Text>Mobile Number: {userData.MobileNo}</Text>
+      <View style={styles.profileImageContainer}>
+        {isLoading ? (
+          <ActivityIndicator animating={true} size={'small'} />
+        ) : (
+          <Avatar.Image size={200} source={imgData} />
+        )}
+      </View>
+      <View style={styles.userDetailsContainer}>
+        <Divider />
+        <Text style={styles.detailText}>Name: {userData.FullName}</Text>
+        <Divider />
+        <Text style={styles.detailText}>Email: {userData.Email}</Text>
+        <Divider />
+        <Text style={styles.detailText}>Username: {userData.UserName}</Text>
+        <Divider />
+        <Text style={styles.detailText}>
+          Mobile Number: {userData.MobileNo}
+        </Text>
+        <Divider />
+      </View>
+      <Button mode="text" onPress={SignOut} style={styles.signOutButton}>
+        SIGNOUT
+      </Button>
     </View>
   );
 };
@@ -56,9 +85,20 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 20,
+    backgroundColor: '#f0f0f0',
+  },
+  profileImageContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  userDetailsContainer: {
+    marginBottom: 20,
+  },
+  detailText: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginBottom: 5,
   },
 });
-
 export default ProfileScreen;

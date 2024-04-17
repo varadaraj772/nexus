@@ -12,8 +12,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {Image, SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
-
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function SignUp({navigation}) {
   useEffect(() => {
     StatusBar.setBackgroundColor('gray');
@@ -61,7 +60,7 @@ export default function SignUp({navigation}) {
       });
       setErrmsg('User Created Successfully!');
       showDialog();
-      navigation.navigate('HOME');
+      navigation.navigate('ADDPROFILE');
     } catch (error) {
       handleSignupError(error);
     } finally {
@@ -84,7 +83,7 @@ export default function SignUp({navigation}) {
         .collection('users')
         .where('UserName', '==', username)
         .get();
-      return !snapshot.empty; // True if username exists, False otherwise
+      return !snapshot.empty;
     } catch (error) {
       console.error('Error checking username:', error);
       return false;

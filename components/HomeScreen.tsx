@@ -1,12 +1,15 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
-import {Alert, SafeAreaView, ScrollView, StyleSheet} from 'react-native';
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
 import {
   Appbar,
-  Button,
   Card,
-  Divider,
-  Image,
   Text,
   ActivityIndicator,
   IconButton,
@@ -14,58 +17,56 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-const HomeScreen = () => {
+const HomeScreen = props => {
   const [userData, setUserData] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const user = auth().currentUser;
   console.log(user);
-
   const handleError = error => {
     console.error('Error fetching user data or posts:', error);
     Alert.alert('Error', 'An error occurred. Please try again later.');
   };
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        try {
-          const docRef = firestore().collection('users').doc(user.uid);
-          const docSnapshot = await docRef.get();
-          if (docSnapshot.exists) {
-            setUserData(docSnapshot.data());
-          } else {
-            console.log('No user data found');
-          }
-        } catch (error) {
-          handleError(error);
-        }
-      }
-    };
-
-    const fetchPosts = async () => {
+  const fetchPosts = async () => {
+    try {
+      setRefreshing(true);
+      const postsRef = firestore().collection('posts');
+      const querySnapshot = await postsRef.get();
+      const fetchedPosts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPosts(fetchedPosts);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+  const fetchUserData = async () => {
+    if (user) {
       try {
-        const postsRef = firestore().collection('posts');
-        const querySnapshot = await postsRef.get();
-        const fetchedPosts = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setPosts(fetchedPosts);
+        const docRef = firestore().collection('users').doc(user.uid);
+        const docSnapshot = await docRef.get();
+        if (docSnapshot.exists) {
+          setUserData(docSnapshot.data());
+        } else {
+          console.log('No user data found');
+        }
       } catch (error) {
         handleError(error);
-      } finally {
-        setLoading(false);
       }
-    };
-
+    }
+  };
+  useEffect(() => {
     fetchUserData();
     fetchPosts();
   }, []);
-
   const renderPost = post => {
     const hasImage = !!post.imageUrl;
-    const contentPadding = hasImage ? 16 : 24; // Adjust padding based on image presence
+    const contentPadding = hasImage ? 16 : 24;
 
     return (
       <Card key={post.id} style={styles.card}>
@@ -110,7 +111,10 @@ const HomeScreen = () => {
           <ActivityIndicator animating={true} size={'large'} />
         </SafeAreaView>
       ) : (
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
+          }>
           {posts.length > 0 ? (
             posts.map(renderPost)
           ) : (

@@ -8,18 +8,16 @@ import {
   Button,
   ActivityIndicator,
 } from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native'; // Import for navigation
-import {launchImageLibrary} from 'react-native-image-picker'; // Import for image picker
+import {launchImageLibrary} from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import {SafeAreaView} from 'react-native';
 
-const PostScreen = () => {
+const PostScreen = props => {
   const [postText, setPostText] = useState('');
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const navigation = useNavigation();
 
   const pickImage = async () => {
     const options = {
@@ -72,11 +70,10 @@ const PostScreen = () => {
         createdAt: timestamp,
         imageUrl,
       });
-
+      props.jumpTo('Home');
       setPostText('');
       setImage(null);
       setUploading(false);
-      navigation.goBack();
     } catch (e) {
       console.error('Error adding post:', e);
       setUploading(false);

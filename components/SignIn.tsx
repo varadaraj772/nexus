@@ -82,7 +82,9 @@ export default function SignIn({navigation}) {
         <Button onPress={() => navigation.navigate('HOME')} mode="text">
           HOme
         </Button>
-        <Button onPress={onGoogleButtonPress}>Google</Button>
+        <Button onPress={() => navigation.navigate('ADDPROFILE')}>
+          Google
+        </Button>
       </SafeAreaView>
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>

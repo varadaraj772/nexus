@@ -2,11 +2,10 @@
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {BottomNavigation, Text} from 'react-native-paper';
-import {Alert, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import ProfileScreen from './ProfileScreen';
 import HomeScreen from './HomeScreen';
 import PostScreen from './PostScreen';
-import SignIn from './SignIn';
 
 const SearchRoute = () => {
   return (
