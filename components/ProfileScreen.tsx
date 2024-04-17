@@ -54,31 +54,33 @@ const ProfileScreen = props => {
   const imgData = userData?.imageurl && {uri: userData.imageurl};
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileImageContainer}>
-        {isLoading ? (
-          <ActivityIndicator animating={true} size={'small'} />
-        ) : (
-          <Avatar.Image size={200} source={imgData} />
-        )}
+    <SafeAreaView style={styles.container}>
+      <View>
+        <View style={styles.profileImageContainer}>
+          {isLoading ? (
+            <ActivityIndicator animating={true} size={'small'} />
+          ) : (
+            <Avatar.Image size={200} source={imgData} />
+          )}
+        </View>
+        <View style={styles.userDetailsContainer}>
+          <Divider />
+          <Text style={styles.detailText}>Name: {userData.FullName}</Text>
+          <Divider />
+          <Text style={styles.detailText}>Email: {userData.Email}</Text>
+          <Divider />
+          <Text style={styles.detailText}>Username: {userData.UserName}</Text>
+          <Divider />
+          <Text style={styles.detailText}>
+            Mobile Number: {userData.MobileNo}
+          </Text>
+          <Divider />
+        </View>
+        <Button mode="text" onPress={SignOut} style={styles.signOutButton}>
+          SIGNOUT
+        </Button>
       </View>
-      <View style={styles.userDetailsContainer}>
-        <Divider />
-        <Text style={styles.detailText}>Name: {userData.FullName}</Text>
-        <Divider />
-        <Text style={styles.detailText}>Email: {userData.Email}</Text>
-        <Divider />
-        <Text style={styles.detailText}>Username: {userData.UserName}</Text>
-        <Divider />
-        <Text style={styles.detailText}>
-          Mobile Number: {userData.MobileNo}
-        </Text>
-        <Divider />
-      </View>
-      <Button mode="text" onPress={SignOut} style={styles.signOutButton}>
-        SIGNOUT
-      </Button>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 5,
   },
   userDetailsContainer: {
     marginBottom: 20,
