@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Image} from 'react-native';
 import {
   TextInput,
   Avatar,
@@ -15,8 +15,10 @@ import storage from '@react-native-firebase/storage';
 import {SafeAreaView} from 'react-native';
 
 const PostScreen = props => {
+  const user = auth().currentUser;
   const [postText, setPostText] = useState('');
   const [image, setImage] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const pickImage = async () => {
@@ -40,22 +42,25 @@ const PostScreen = props => {
       console.error('Error picking image:', error);
     }
   };
+  const fetchUser = async () => {
+    const docRef = firestore().collection('users').doc(user.uid);
+    const docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      setUserData(docSnapshot.data());
+    }
+  };
 
   const handlePostSubmit = async () => {
     if (!postText || postText.trim() === '') {
       return;
     }
-
     setUploading(true);
-
     try {
-      const user = auth().currentUser;
       if (!user) {
         return;
       }
       const timestamp = firestore.FieldValue.serverTimestamp();
       const postRef = firestore().collection('posts').doc();
-
       let imageUrl = null;
       if (image) {
         const filename = image.uri.split('/').pop();
@@ -68,6 +73,7 @@ const PostScreen = props => {
         content: postText,
         authorId: user.uid,
         createdAt: timestamp,
+        userName: userData.UserName,
         imageUrl,
       });
       props.jumpTo('Home');
@@ -79,11 +85,15 @@ const PostScreen = props => {
       setUploading(false);
     }
   };
-
+  useEffect(() => {
+    fetchUser();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
-      {image && (
-        <Avatar.Image size={100} style={styles.imagePreview} source={image} />
+      {image ? (
+        <Image source={image} style={styles.image} />
+      ) : (
+        <Image source={require('../assets/addPost.png')} style={styles.image} />
       )}
       <TextInput
         label="Write your post..."
@@ -119,10 +129,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
-  imagePreview: {
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
   textInput: {
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -137,6 +143,18 @@ const styles = StyleSheet.create({
   },
   postbtn: {
     width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontWeight: 'bold',
+  },
+  image: {
+    width: '100%',
+    height: '70%',
+    resizeMode: 'cover',
+    marginBottom: '5%',
+    alignSelf: 'center',
+
+    borderRadius: 10,
   },
 });
 

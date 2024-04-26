@@ -44,7 +44,7 @@ const AddProfile = ({navigation}) => {
       imageurl: imageUrl,
     });
     Alert.alert('Profile photo added');
-    navigation.navigate('HOME');
+                                navigation.navigate('HOME');
   };
 
   return (

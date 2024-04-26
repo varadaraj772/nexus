@@ -4,6 +4,7 @@ import {Text, View, StyleSheet, SafeAreaView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {ActivityIndicator, Avatar, Button, Divider} from 'react-native-paper';
+import {navigation} from 'react-native';
 
 const ProfileScreen = props => {
   const [userData, setUserData] = useState(null);
@@ -76,7 +77,7 @@ const ProfileScreen = props => {
           </Text>
           <Divider />
         </View>
-        <Button mode="text" onPress={SignOut} style={styles.signOutButton}>
+        <Button mode="text" onPress={SignOut}>
           SIGNOUT
         </Button>
       </View>
