@@ -6,14 +6,8 @@ import {StyleSheet, View} from 'react-native';
 import ProfileScreen from './ProfileScreen';
 import HomeScreen from './HomeScreen';
 import PostScreen from './PostScreen';
+import SearchScreen from './SearchScreen';
 
-const SearchRoute = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Search</Text>
-    </View>
-  );
-};
 const ChatRoute = () => {
   return (
     <View style={styles.container}>
@@ -67,7 +61,7 @@ export default function Home({navigation}) {
 
   const renderScene = BottomNavigation.SceneMap({
     Home: HomeScreen,
-    Search: SearchRoute,
+    Search: SearchScreen,
     Post: PostScreen,
     Chat: ChatRoute,
     Profile: ProfileScreen,

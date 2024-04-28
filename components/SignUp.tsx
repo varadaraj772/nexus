@@ -54,7 +54,7 @@ export default function SignUp({navigation}) {
       await firestore().collection('users').doc(uid).set({
         UserName: username,
         password: password,
-        FullName: fullName,
+        FullName: fullName.toUpperCase(),
         Email: email,
         MobileNo: mobileNo,
       });
