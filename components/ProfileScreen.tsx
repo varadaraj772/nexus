@@ -49,7 +49,7 @@ const ProfileScreen = props => {
 
   const SignOut = () => {
     auth().signOut();
-    props.jumpTo('Home');
+    props.jumpTo('welcome');
   };
 
   const imgData = userData?.imageurl && {uri: userData.imageurl};

@@ -7,6 +7,7 @@ import ProfileScreen from './ProfileScreen';
 import HomeScreen from './HomeScreen';
 import PostScreen from './PostScreen';
 import SearchScreen from './SearchScreen';
+import Welcome from './Welcome';
 
 const ChatRoute = () => {
   return (
@@ -65,6 +66,7 @@ export default function Home({navigation}) {
     Post: PostScreen,
     Chat: ChatRoute,
     Profile: ProfileScreen,
+    welcome: Welcome,
   });
 
   return (

@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {View, FlatList, StyleSheet} from 'react-native';
 import {ActivityIndicator, Avatar, Searchbar, Text} from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
+import {Image} from 'react-native';
 
 const debounce = (
   func: {(searchTerm: any): Promise<void>; (arg0: any): void},
@@ -47,6 +48,11 @@ const SearchScreen = () => {
         onChangeText={setSearchTerm}
         value={searchTerm}
       />
+      {searchTerm ? (
+        ''
+      ) : (
+        <Image source={require('../assets/search.png')} style={styles.image} />
+      )}
       {usernames.length > 0 ? (
         <FlatList
           data={usernames}
@@ -102,6 +108,12 @@ const styles = StyleSheet.create({
   },
   profile: {
     marginRight: 10,
+  },
+  image: {
+    width: '100%',
+    height: '70%',
+    resizeMode: 'cover',
+    marginTop: 40,
   },
 });
 

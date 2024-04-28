@@ -13,15 +13,6 @@ import {
 } from 'react-native-paper';
 import {Image} from 'react-native';
 
-const theme = {
-  colors: {
-    primary: '#F08080',
-    secondary: '#3F51B5',
-    background: '#F5F5F5',
-  },
-};
-const onGoogleButtonPress = async () => {};
-
 export default function SignIn({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,8 +33,7 @@ export default function SignIn({navigation}) {
         navigation.navigate('HOME');
       })
       .catch(error => {
-        Alert.alert(error.nativeErrorMessage);
-        setErrmsg(error.nativeErrorMessage);
+        setErrmsg(error.message);
         showDialog();
       });
   }
@@ -78,12 +68,6 @@ export default function SignIn({navigation}) {
         />
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
-        </Button>
-        <Button onPress={() => navigation.navigate('HOME')} mode="text">
-          HOme
-        </Button>
-        <Button onPress={() => navigation.navigate('ADDPROFILE')}>
-          Google
         </Button>
       </SafeAreaView>
       <Portal>

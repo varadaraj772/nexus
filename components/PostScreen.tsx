@@ -153,7 +153,6 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     marginBottom: '5%',
     alignSelf: 'center',
-
     borderRadius: 10,
   },
 });

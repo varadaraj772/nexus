@@ -62,19 +62,11 @@ export default function SignUp({navigation}) {
       showDialog();
       navigation.navigate('ADDPROFILE');
     } catch (error) {
-      handleSignupError(error);
+      setErrmsg(error.message);
+      showDialog();
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSignupError = error => {
-    const errorCodes = {
-      'auth/email-already-in-use': 'Email already in use',
-      'auth/weak-password': 'Password is too weak',
-    };
-    setErrmsg(errorCodes[error.code] || 'Signup failed. Please try again.');
-    showDialog();
   };
 
   const checkUsernameExists = async username => {

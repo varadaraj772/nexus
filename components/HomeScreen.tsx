@@ -13,6 +13,7 @@ import {
   Card,
   Text,
   ActivityIndicator,
+  Button,
   IconButton,
 } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
@@ -22,22 +23,46 @@ const HomeScreen = props => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [username, setUsername] = useState('');
   const user = auth().currentUser;
-  const handleError = error => {
+  const [likes, setLikes] = useState({});
+  const handleError = (error: unknown) => {
     console.error('Error fetching user data or posts:', error);
     Alert.alert('Error', 'An error occurred. Please try again later.');
   };
+
   const fetchPosts = async () => {
     try {
       setRefreshing(true);
+      setUsername(
+        (await firestore().collection('users').doc(user.uid).get()).data()
+          .UserName,
+      );
       const postsRef = firestore().collection('posts');
       const querySnapshot = await postsRef.get();
-      const fetchedPosts = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
+      const fetchedPosts = querySnapshot.docs.map(doc => {
+        const postData =
+          typeof doc.data() === 'object' && doc.data() !== null
+            ? doc.data()
+            : {};
+        return {
+          id: doc.id,
+          ...postData,
+          likedBy: postData.likedBy || [],
+          likeCount: doc.data().likeCount || 0,
+        };
+      });
       setPosts(fetchedPosts);
+      setLikes(
+        fetchedPosts.reduce((acc, post) => {
+          acc[post.id] = {
+            ...post,
+            likedBy: post.likedBy,
+            likeCount: post.likeCount,
+          };
+          return acc;
+        }, {}),
+      );
     } catch (error) {
       handleError(error);
     } finally {
@@ -46,56 +71,110 @@ const HomeScreen = props => {
     }
   };
   useEffect(() => {
-    if (!user) {
-    }
     fetchPosts();
   }, []);
-  const renderPost = post => {
+
+  const handleLikePress = async (postId: React.Key | null | undefined) => {
+    try {
+      const liked = likes[postId].likedBy?.includes(username) || false;
+      const updatedLikedBy = liked
+        ? [
+            ...likes[postId].likedBy.filter(
+              (id: string | undefined) => id !== username,
+            ),
+          ]
+        : [...likes[postId].likedBy, username];
+      const updatedLikeCount = liked
+        ? likes[postId].likeCount - 1
+        : likes[postId].likeCount + 1;
+
+      await firestore().collection('posts').doc(postId).update({
+        likedBy: updatedLikedBy,
+        likeCount: updatedLikeCount,
+      });
+
+      setLikes({
+        ...likes,
+        [postId]: {
+          ...likes[postId],
+          likedBy: updatedLikedBy,
+          likeCount: updatedLikeCount,
+        },
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const renderPost = (post: {
+    imageUrl: any;
+    createdAt: any;
+    id: React.Key | null | undefined;
+    userName:
+      | string
+      | number
+      | boolean
+      | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+      | Iterable<React.ReactNode>
+      | React.ReactPortal
+      | null
+      | undefined;
+    content:
+      | string
+      | number
+      | boolean
+      | React.ReactElement<any, string | React.JSXElementConstructor<any>>
+      | Iterable<React.ReactNode>
+      | React.ReactPortal
+      | null
+      | undefined;
+  }) => {
     const hasImage = !!post.imageUrl;
     const timestamp = post.createdAt;
     const dateString = timestamp.toDate().toLocaleString();
+    const liked = likes[post.id]?.likedBy?.includes(username) || false;
+    const likedCount = likes[post.id]?.likeCount;
+    console.log(post.id);
     return (
-      <Card key={post.id} style={styles.card} mode="elevated">
-        <View style={styles.cardHeader}>
-          <Text variant="titleLarge" style={styles.username}>
-            {post.userName}
-          </Text>
-          <Text
-            variant="labelMedium"
-            style={[styles.timestamp, styles.alignRight]}>
-            {dateString}
-          </Text>
-        </View>
-        {hasImage && (
-          <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
-        )}
-        <Card.Content style={styles.content}>
-          <Text variant="bodyLarge">{post.content}</Text>
-        </Card.Content>
-        <Card.Actions style={styles.cardActions}>
-          <IconButton
-            icon="cards-heart-outline"
-            size={24}
-            mode="default"
-            onPress={() => {}}
-            style={styles.iconLeft}
-          />
-          <IconButton
-            icon="comment-flash-outline"
-            size={24}
-            mode="default"
-            onPress={() => {}}
-            style={styles.iconMiddle}
-          />
-          <IconButton
-            icon="share-variant-outline"
-            size={24}
-            mode="default"
-            onPress={() => {}}
-            style={styles.iconRight}
-          />
-        </Card.Actions>
-      </Card>
+      <>
+        <Card key={post.id} style={styles.card} mode="elevated">
+          <View style={styles.cardHeader}>
+            <Text variant="titleLarge" style={styles.username}>
+              {post.userName}
+            </Text>
+            <Text
+              variant="labelMedium"
+              style={[styles.timestamp, styles.alignRight]}>
+              {dateString}
+            </Text>
+          </View>
+          {hasImage && (
+            <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
+          )}
+          <Card.Content style={styles.content}>
+            <Text variant="bodyLarge">{post.content}</Text>
+          </Card.Content>
+          <Card.Actions style={styles.cardActions}>
+            <Button
+              icon={liked ? 'cards-heart' : 'cards-heart-outline'}
+              mode="outlined"
+              onPress={() => handleLikePress(post.id)}>
+              <Text style={styles.text}>
+                {likedCount === 0
+                  ? likedCount
+                  : likedCount === 1
+                  ? 'by ' + username
+                  : 'by ' + username + ' and ' + likedCount + ' others'}
+              </Text>
+            </Button>
+            <Button
+              icon="comment-flash-outline"
+              mode="outlined"
+              onPress={() => {}}>
+              3 comments
+            </Button>
+          </Card.Actions>
+        </Card>
+      </>
     );
   };
 
@@ -103,7 +182,8 @@ const HomeScreen = props => {
     <>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => {}} />
-        <Appbar.Content title="POSTS" />
+        <Appbar.Content title="NEXUS" />
+        <Appbar.Action icon="bell-badge" onPress={() => {}} />
       </Appbar.Header>
       {loading ? (
         <SafeAreaView style={styles.container}>
@@ -133,7 +213,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    marginBottom: 20,
+    marginBottom: 15,
     borderRadius: 15,
     backgroundColor: 'white',
     padding: 5,
@@ -143,7 +223,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
+    padding: 7,
     backgroundColor: '#F0E7FF',
     borderTopStartRadius: 15,
     borderTopEndRadius: 15,
@@ -159,37 +239,27 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   img: {
-    height: 500,
+    height: 400,
     resizeMode: 'stretch',
     borderRadius: 0,
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
   },
   content: {
-    paddingVertical: 16,
+    paddingVertical: 10,
     backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginTop: 5,
   },
   cardActions: {
-    justifyContent: 'flex-start',
-    position: 'relative',
-    padding: 35,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginVertical: 5,
   },
-  iconLeft: {
-    position: 'absolute',
-    left: 0,
-  },
-  iconMiddle: {
-    position: 'absolute',
-    left: '50%',
-    transform: [{translateX: 0}],
-  },
-  iconRight: {
-    position: 'absolute',
-    right: 0,
+  text: {
+    fontWeight: 'bold',
   },
 });
