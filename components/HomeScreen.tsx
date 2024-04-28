@@ -53,6 +53,7 @@ const HomeScreen = props => {
         };
       });
       setPosts(fetchedPosts);
+
       setLikes(
         fetchedPosts.reduce((acc, post) => {
           acc[post.id] = {
@@ -77,6 +78,7 @@ const HomeScreen = props => {
   const handleLikePress = async (postId: React.Key | null | undefined) => {
     try {
       const liked = likes[postId].likedBy?.includes(username) || false;
+      console.log(username);
       const updatedLikedBy = liked
         ? [
             ...likes[postId].likedBy.filter(
@@ -127,6 +129,7 @@ const HomeScreen = props => {
       | React.ReactPortal
       | null
       | undefined;
+    likedBy: any;
   }) => {
     const hasImage = !!post.imageUrl;
     const timestamp = post.createdAt;
@@ -162,15 +165,19 @@ const HomeScreen = props => {
                 {likedCount === 0
                   ? likedCount
                   : likedCount === 1
-                  ? 'by ' + username
-                  : 'by ' + username + ' and ' + likedCount + ' others'}
+                  ? 'by ' + post.likedBy[0]
+                  : 'by ' +
+                    post.likedBy[post.likedBy.length - 1] +
+                    ' and ' +
+                    likedCount +
+                    ' others'}
               </Text>
             </Button>
             <Button
               icon="comment-flash-outline"
               mode="outlined"
               onPress={() => {}}>
-              3 comments
+              3
             </Button>
           </Card.Actions>
         </Card>
