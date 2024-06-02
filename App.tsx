@@ -8,6 +8,7 @@ import Home from './components/Home';
 import Welcome from './components/Welcome';
 import auth from '@react-native-firebase/auth';
 import AddProfile from './components/AddProfile';
+import ProfileScreen from './components/ProfileScreen';
 
 const Stack = createStackNavigator();
 const user = auth().currentUser;

@@ -9,17 +9,15 @@ import {
   View,
 } from 'react-native';
 import {
-  Appbar,
   Card,
   Text,
   ActivityIndicator,
   Button,
-  IconButton,
 } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
-const HomeScreen = props => {
+const HomeScreen = ({navigation}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -136,62 +134,48 @@ const HomeScreen = props => {
     const dateString = timestamp.toDate().toLocaleString();
     const liked = likes[post.id]?.likedBy?.includes(username) || false;
     const likedCount = likes[post.id]?.likeCount;
-    console.log(post.id);
     return (
-      <>
-        <Card key={post.id} style={styles.card} mode="elevated">
-          <View style={styles.cardHeader}>
-            <Text variant="titleLarge" style={styles.username}>
-              {post.userName}
+      <Card style={styles.card} mode="elevated" key={post.id}>
+        <View style={styles.cardHeader}>
+          <Text variant="titleLarge" style={styles.username}>
+            {post.userName}
+          </Text>
+          <Text
+            variant="labelMedium"
+            style={[styles.timestamp, styles.alignRight]}>
+            {dateString}
+          </Text>
+        </View>
+        {hasImage && (
+          <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
+        )}
+        <Card.Content style={styles.content}>
+          <Text variant="bodyLarge">{post.content}</Text>
+        </Card.Content>
+        <Card.Actions style={styles.cardActions}>
+          <Button
+            icon={liked ? 'cards-heart' : 'cards-heart-outline'}
+            mode="outlined"
+            onPress={() => handleLikePress(post.id)}>
+            <Text style={styles.text}>
+              {likedCount === 0
+                ? likedCount
+                : likedCount === 1
+                ? 'by ' + post.likedBy[0]
+                : 'by ' +
+                  post.likedBy[post.likedBy.length - 1] +
+                  ' and ' +
+                  likedCount +
+                  ' others'}
             </Text>
-            <Text
-              variant="labelMedium"
-              style={[styles.timestamp, styles.alignRight]}>
-              {dateString}
-            </Text>
-          </View>
-          {hasImage && (
-            <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
-          )}
-          <Card.Content style={styles.content}>
-            <Text variant="bodyLarge">{post.content}</Text>
-          </Card.Content>
-          <Card.Actions style={styles.cardActions}>
-            <Button
-              icon={liked ? 'cards-heart' : 'cards-heart-outline'}
-              mode="outlined"
-              onPress={() => handleLikePress(post.id)}>
-              <Text style={styles.text}>
-                {likedCount === 0
-                  ? likedCount
-                  : likedCount === 1
-                  ? 'by ' + post.likedBy[0]
-                  : 'by ' +
-                    post.likedBy[post.likedBy.length - 1] +
-                    ' and ' +
-                    likedCount +
-                    ' others'}
-              </Text>
-            </Button>
-            <Button
-              icon="comment-flash-outline"
-              mode="outlined"
-              onPress={() => {}}>
-              3
-            </Button>
-          </Card.Actions>
-        </Card>
-      </>
+          </Button>
+        </Card.Actions>
+      </Card>
     );
   };
 
   return (
     <>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => {}} />
-        <Appbar.Content title="NEXUS" />
-        <Appbar.Action icon="bell-badge" onPress={() => {}} />
-      </Appbar.Header>
       {loading ? (
         <SafeAreaView style={styles.container}>
           <ActivityIndicator animating={true} size={'large'} />
@@ -220,6 +204,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
+    marginTop: 5,
     marginBottom: 15,
     borderRadius: 15,
     backgroundColor: 'white',
@@ -259,9 +244,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   cardActions: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
     backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginVertical: 5,

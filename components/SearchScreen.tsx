@@ -1,46 +1,95 @@
 /* eslint-disable prettier/prettier */
 import React, {useState, useEffect} from 'react';
-import {View, FlatList, StyleSheet} from 'react-native';
+import {View, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {ActivityIndicator, Avatar, Searchbar, Text} from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 import {Image} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
-const debounce = (
-  func: {(searchTerm: any): Promise<void>; (arg0: any): void},
-  delay: number | undefined,
-) => {
-  let timeoutId: string | number | NodeJS.Timeout | undefined;
-  return (...args: any) => {
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
   };
 };
 
-const SearchScreen = () => {
+const SearchScreen = ({navigation}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [usernames, setUsernames] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const debouncedFetchUsers = debounce(async searchTerm => {
     if (!searchTerm) {
       setUsernames([]);
-      return '';
+      setLoading(false);
+      return;
     }
+    setLoading(true);
     try {
       const usersRef = firestore().collection('users');
       const querySnapshot = await usersRef
-        .where('FullName', '==', searchTerm.toUpperCase())
+        .orderBy('FullName')
+        .startAt(searchTerm.toUpperCase())
+        .endAt(searchTerm.toUpperCase() + '\uf8ff')
         .get();
-      const fetchedUsers = querySnapshot.docs.map(doc => doc.data());
+      const fetchedUsers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setUsernames(fetchedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
+    setLoading(false);
   }, 500);
 
   useEffect(() => {
     debouncedFetchUsers(searchTerm);
-  }, [debouncedFetchUsers, searchTerm]);
+  }, [searchTerm]);
 
+  const handleUserPress = async userId => {
+    try {
+      const currentUser = auth().currentUser;
+      if (currentUser) {
+        const chatRoomId = await initiateChat(currentUser.uid, userId);
+        navigation.navigate('Chat', {
+          chatRoomId,
+          userId: currentUser.uid,
+        });
+      }
+    } catch (error) {
+      console.error('Error initiating chat:', error);
+    }
+  };
+
+  const initiateChat = async (userId1: string, userId2: any) => {
+    const chatRoomsRef = firestore().collection('chatRooms');
+    const userIds = [userId1, userId2];
+
+    const querySnapshot = await chatRoomsRef
+      .where('participants', 'array-contains', userIds[0])
+      .get();
+
+    let chatRoomId = null;
+
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.participants.includes(userIds[1])) {
+        chatRoomId = doc.id;
+      }
+    });
+
+    if (chatRoomId) {
+      return chatRoomId;
+    } else {
+      const newChatRoom = await chatRoomsRef.add({
+        participants: userIds,
+        createdAt: new Date(),
+      });
+      return newChatRoom.id;
+    }
+  };
   return (
     <View style={styles.container}>
       <Searchbar
@@ -53,35 +102,40 @@ const SearchScreen = () => {
       ) : (
         <Image source={require('../assets/search.png')} style={styles.image} />
       )}
-      {usernames.length > 0 ? (
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          animating={true}
+          style={styles.activityIndicator}
+        />
+      ) : (
         <FlatList
           data={usernames}
           renderItem={({item}) => (
-            <View style={styles.searchResult}>
-              {item.imageurl && (
-                <Avatar.Image
-                  source={{uri: item.imageurl}}
-                  style={styles.profile}
-                />
-              )}
-              <Text style={styles.nameText}>@{item.UserName}</Text>
-
-              <Text style={styles.usernameText}>{item.FullName}</Text>
-            </View>
+            <TouchableOpacity onPress={() => handleUserPress(item.id)}>
+              <View style={styles.searchResult}>
+                {item.imageurl && (
+                  <Avatar.Image
+                    source={{uri: item.imageurl}}
+                    style={styles.profile}
+                  />
+                )}
+                <Text style={styles.nameText}>@{item.UserName}</Text>
+                <Text style={styles.usernameText}>{item.FullName}</Text>
+              </View>
+            </TouchableOpacity>
           )}
+          ListEmptyComponent={
+            searchTerm && !loading ? (
+              <Text style={styles.noUserText}>No user found</Text>
+            ) : null
+          }
         />
-      ) : (
-        searchTerm && (
-          <ActivityIndicator
-            size="large"
-            animating={true}
-            style={styles.activityIndicator}
-          />
-        )
       )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -114,6 +168,12 @@ const styles = StyleSheet.create({
     height: '70%',
     resizeMode: 'cover',
     marginTop: 40,
+  },
+  noUserText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#888',
   },
 });
 

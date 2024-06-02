@@ -100,7 +100,15 @@ export default function SignUp({navigation}) {
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
-        <Image source={require('../assets/signup.png')} style={styles.image} />
+        {email || password || username || fullName ? (
+          ''
+        ) : (
+          <Image
+            source={require('../assets/signup.png')}
+            style={styles.image}
+          />
+        )}
+
         <TextInput
           label="Email"
           mode="outlined"
@@ -140,14 +148,6 @@ export default function SignUp({navigation}) {
           value={fullName}
           style={styles.input}
         />
-        <TextInput
-          label="MobileNumber"
-          onChangeText={setMobileNo}
-          placeholder="Enter your MobileNumber"
-          mode="outlined"
-          value={mobileNo}
-          style={styles.input}
-        />
         <View style={styles.buttonsContainer}>
           <Button
             mode="elevated"
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 400,
+    height: '50%',
     resizeMode: 'cover',
     marginBottom: '5%',
   },

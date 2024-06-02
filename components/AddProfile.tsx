@@ -1,15 +1,26 @@
 /* eslint-disable prettier/prettier */
 import React, {useState} from 'react';
-import {StyleSheet, SafeAreaView, Alert, View} from 'react-native';
+import {StyleSheet, SafeAreaView, Alert, View, Image} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-import {Avatar, Button, IconButton} from 'react-native-paper';
+import {
+  Avatar,
+  Button,
+  Dialog,
+  IconButton,
+  PaperProvider,
+  Portal,
+  Text,
+} from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 
 const AddProfile = ({navigation}) => {
   const [image, setImage] = useState(null);
-
+  const [visible, setVisible] = useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+  const [errmsg, setErrmsg] = useState('');
   const pickImage = async () => {
     const options = {
       mediaType: 'photo',
@@ -39,27 +50,63 @@ const AddProfile = ({navigation}) => {
       const storageRef = storage().ref(`profile_photos/${filename}`);
       await storageRef.putFile(image.uri);
       imageUrl = await storageRef.getDownloadURL();
+    } else {
+      setErrmsg('PlEASE SELECT A PROFILE PHOTO TO ADD');
+      showDialog();
     }
-    await postRef.update({
-      imageurl: imageUrl,
-    });
-    Alert.alert('Profile photo added');
-                                navigation.navigate('HOME');
+    if (imageUrl) {
+      await postRef.update({
+        imageurl: imageUrl,
+      });
+      navigation.navigate('HOME');
+    }
   };
 
   return (
-    <SafeAreaView>
-      <View>
-        {image && <Avatar.Image size={100} source={image} />}
+    <PaperProvider>
+      <SafeAreaView style={styles.container}>
+        {image ? (
+          <Image source={image} style={styles.image} />
+        ) : (
+          <Image
+            source={require('../assets/addprofile.png')}
+            style={styles.image}
+          />
+        )}
         <IconButton icon="image" onPress={pickImage} mode="contained-tonal" />
         <Button mode="contained-tonal" onPress={handleProfileSubmit}>
           ADD PROFILE
         </Button>
-      </View>
-    </SafeAreaView>
+        <Portal>
+          <Dialog visible={visible} onDismiss={hideDialog}>
+            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">{errmsg}</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideDialog}>Okay</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+      </SafeAreaView>
+    </PaperProvider>
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '70%',
+    resizeMode: 'cover',
+    marginBottom: '5%',
+    alignSelf: 'center',
+    borderRadius: 10,
+  },
+});
 
 export default AddProfile;

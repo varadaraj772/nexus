@@ -4,9 +4,8 @@ import {Text, View, StyleSheet, SafeAreaView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import {ActivityIndicator, Avatar, Button, Divider} from 'react-native-paper';
-import {navigation} from 'react-native';
 
-const ProfileScreen = props => {
+const ProfileScreen = ({navigation}) => {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const user = auth().currentUser;
@@ -14,7 +13,6 @@ const ProfileScreen = props => {
   const handleError = error => {
     console.error('Error fetching user data:', error);
   };
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
@@ -49,7 +47,7 @@ const ProfileScreen = props => {
 
   const SignOut = () => {
     auth().signOut();
-    props.jumpTo('welcome');
+    navigation.navigate('HOME');
   };
 
   const imgData = userData?.imageurl && {uri: userData.imageurl};

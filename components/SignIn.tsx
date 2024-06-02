@@ -10,6 +10,7 @@ import {
   Dialog,
   Portal,
   Text,
+  HelperText,
 } from 'react-native-paper';
 import {Image} from 'react-native';
 
@@ -37,7 +38,6 @@ export default function SignIn({navigation}) {
         showDialog();
       });
   }
-
   const iconName = showPassword ? 'eye' : 'eye-off';
   return (
     <PaperProvider>
@@ -69,6 +69,23 @@ export default function SignIn({navigation}) {
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
         </Button>
+        <HelperText
+          type="error"
+          onPress={() => {
+            if (email) {
+              auth()
+                .sendPasswordResetEmail(email)
+                .then(() => {
+                  setErrmsg('Password reset link has been sent to your mail');
+                })
+                .then(() => showDialog());
+            } else {
+              setErrmsg('Please enter email to send password reset link');
+              return showDialog();
+            }
+          }}>
+          RESET PASSWORD
+        </HelperText>
       </SafeAreaView>
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
