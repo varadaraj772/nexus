@@ -8,14 +8,10 @@ import {
   RefreshControl,
   View,
 } from 'react-native';
-import {
-  Card,
-  Text,
-  ActivityIndicator,
-  Button,
-} from 'react-native-paper';
+import {Card, Text, ActivityIndicator, Button} from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import moment from 'moment';
 
 const HomeScreen = ({navigation}) => {
   const [posts, setPosts] = useState([]);
@@ -135,6 +131,7 @@ const HomeScreen = ({navigation}) => {
     const liked = likes[post.id]?.likedBy?.includes(username) || false;
     const likedCount = likes[post.id]?.likeCount;
     return (
+      
       <Card style={styles.card} mode="elevated" key={post.id}>
         <View style={styles.cardHeader}>
           <Text variant="titleLarge" style={styles.username}>
@@ -143,7 +140,7 @@ const HomeScreen = ({navigation}) => {
           <Text
             variant="labelMedium"
             style={[styles.timestamp, styles.alignRight]}>
-            {dateString}
+            {moment(post.createdAt.toDate()).format('MMMM Do YYYY, h:mm:ss a')}
           </Text>
         </View>
         {hasImage && (

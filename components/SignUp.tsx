@@ -22,7 +22,6 @@ export default function SignUp({navigation}) {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [mobileNo, setMobileNo] = useState('');
   const [visible, setVisible] = useState(false);
   const [errmsg, setErrmsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +55,6 @@ export default function SignUp({navigation}) {
         password: password,
         FullName: fullName.toUpperCase(),
         Email: email,
-        MobileNo: mobileNo,
       });
       setErrmsg('User Created Successfully!');
       showDialog();
@@ -83,7 +81,7 @@ export default function SignUp({navigation}) {
   };
 
   const validateForm = () => {
-    if (!email || !password || !fullName || !username || !mobileNo) {
+    if (!email || !password || !fullName || !username) {
       setErrmsg('Please fill all the details');
       showDialog();
       return false;

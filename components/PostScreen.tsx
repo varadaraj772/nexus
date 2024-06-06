@@ -1,12 +1,15 @@
 /* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Image, Text} from 'react-native';
 import {
   TextInput,
   Avatar,
   IconButton,
   Button,
   ActivityIndicator,
+  Dialog,
+  Portal,
+  PaperProvider,
 } from 'react-native-paper';
 import {launchImageLibrary} from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
@@ -20,6 +23,10 @@ const PostScreen = props => {
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [errmsg, setErrmsg] = useState('');
+  const [visible, setVisible] = useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
 
   const pickImage = async () => {
     const options = {
@@ -51,7 +58,9 @@ const PostScreen = props => {
   };
 
   const handlePostSubmit = async () => {
-    if (!postText || postText.trim() === '') {
+    if ((!postText || postText.trim() === '') && !image) {
+      setErrmsg('PLEASE SELECT A IMAGE OR ENTER A TEXT TO POST');
+      showDialog();
       return;
     }
     setUploading(true);
@@ -80,6 +89,7 @@ const PostScreen = props => {
       setPostText('');
       setImage(null);
       setUploading(false);
+      setImage('');
     } catch (e) {
       console.error('Error adding post:', e);
       setUploading(false);
@@ -89,37 +99,53 @@ const PostScreen = props => {
     fetchUser();
   }, []);
   return (
-    <SafeAreaView style={styles.container}>
-      {image ? (
-        <Image source={image} style={styles.image} />
-      ) : (
-        <Image source={require('../assets/addPost.png')} style={styles.image} />
-      )}
-      <TextInput
-        label="Write your post..."
-        value={postText}
-        onChangeText={setPostText}
-        multiline
-        numberOfLines={4}
-        style={styles.textInput}
-      />
-      <View style={styles.buttonRow}>
-        <IconButton icon="image" onPress={pickImage} mode="contained-tonal" />
-        <Button
-          mode="contained-tonal"
-          style={styles.postbtn}
-          onPress={handlePostSubmit}>
-          ADD POST
-        </Button>
-      </View>
-      {uploading && (
-        <ActivityIndicator
-          size="large"
-          animating={true}
-          style={styles.activityIndicator}
+    <PaperProvider>
+      <SafeAreaView style={styles.container}>
+        {image ? (
+          <Image source={image} style={styles.image} />
+        ) : (
+          <Image
+            source={require('../assets/addPost.png')}
+            style={styles.image}
+          />
+        )}
+        <TextInput
+          label="Write your post..."
+          value={postText}
+          onChangeText={setPostText}
+          multiline
+          numberOfLines={4}
+          style={styles.textInput}
         />
-      )}
-    </SafeAreaView>
+        <View style={styles.buttonRow}>
+          <IconButton icon="image" onPress={pickImage} mode="contained-tonal" />
+          <Button
+            mode="contained-tonal"
+            style={styles.postbtn}
+            onPress={handlePostSubmit}>
+            ADD POST
+          </Button>
+        </View>
+        {uploading && (
+          <ActivityIndicator
+            size="large"
+            animating={true}
+            style={styles.activityIndicator}
+          />
+        )}
+        <Portal>
+          <Dialog visible={visible} onDismiss={hideDialog}>
+            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">{errmsg}</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideDialog}>Close</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+      </SafeAreaView>
+    </PaperProvider>
   );
 };
 

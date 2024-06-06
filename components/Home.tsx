@@ -11,6 +11,10 @@ import SearchScreen from './SearchScreen';
 import ChatScreen from './ChatScreen';
 import DetailedChatScreen from './DetailedChatScreen';
 import auth from '@react-native-firebase/auth';
+import Welcome from './Welcome';
+import AddProfile from './AddProfile';
+import SignIn from './SignIn';
+import SignUp from './SignUp';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -72,13 +76,14 @@ const MainTabNavigator = ({navigation}) => {
       />
       <Tab.Screen
         name="Chat"
-        component={ChatStackNavigator} // Use the nested stack navigator for the Chat tab
+        component={ChatStackNavigator}
         options={{headerShown: false}}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{headerShown: false}}
+        initialParams={{navigation}}
       />
     </Tab.Navigator>
   );
