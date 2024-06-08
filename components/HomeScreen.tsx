@@ -131,7 +131,6 @@ const HomeScreen = ({navigation}) => {
     const liked = likes[post.id]?.likedBy?.includes(username) || false;
     const likedCount = likes[post.id]?.likeCount;
     return (
-      
       <Card style={styles.card} mode="elevated" key={post.id}>
         <View style={styles.cardHeader}>
           <Text variant="titleLarge" style={styles.username}>

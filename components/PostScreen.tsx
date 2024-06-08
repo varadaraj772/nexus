@@ -17,7 +17,7 @@ import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import {SafeAreaView} from 'react-native';
 
-const PostScreen = props => {
+const PostScreen = ({navigation}) => {
   const user = auth().currentUser;
   const [postText, setPostText] = useState('');
   const [image, setImage] = useState(null);
@@ -85,11 +85,10 @@ const PostScreen = props => {
         userName: userData.UserName,
         imageUrl,
       });
-      props.jumpTo('Home');
+      navigation.navigate('Home');
       setPostText('');
       setImage(null);
       setUploading(false);
-      setImage('');
     } catch (e) {
       console.error('Error adding post:', e);
       setUploading(false);
@@ -135,7 +134,7 @@ const PostScreen = props => {
         )}
         <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
-            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Title>NOTICE</Dialog.Title>
             <Dialog.Content>
               <Text variant="bodyMedium">{errmsg}</Text>
             </Dialog.Content>

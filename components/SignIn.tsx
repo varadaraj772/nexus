@@ -69,6 +69,12 @@ export default function SignIn({navigation}) {
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
           LOGIN
         </Button>
+        <Button
+          onPress={navigation.navigate('ADDPROFILE')}
+          mode="elevated"
+          style={styles.input}>
+          LOGIN
+        </Button>
         <HelperText
           type="error"
           onPress={() => {
@@ -89,7 +95,7 @@ export default function SignIn({navigation}) {
       </SafeAreaView>
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
-          <Dialog.Title>Error</Dialog.Title>
+          <Dialog.Title>NOTICE</Dialog.Title>
           <Dialog.Content>
             <Text variant="bodyMedium">{errmsg}</Text>
           </Dialog.Content>
