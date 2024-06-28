@@ -12,6 +12,14 @@ Introducing NEXUS, a cutting-edge social media app powered by React Native and F
 
 Stay tuned for updates, including AI-powered innovations, to elevate your NEXUS experience! Let's connect and innovate together. 🌟
 
+## Technologies Used
+- **React Native**: For building the mobile app.
+- **Firebase**: For backend services like authentication, database, and storage.
+- **Google Gemini API**: For Ai features.
+- **React Navigation (Stack & Bottom Navigation)**: For handling navigation.
+- **React Native Paper**: For implementing Material Design 3 components.
+
+
 ## Project Structure
 - **__tests__**: Contains unit and integration tests for various components.
 - **android**: Contains Android-specific code and resources.
@@ -28,6 +36,7 @@ Stay tuned for updates, including AI-powered innovations, to elevate your NEXUS 
 - **.prettierrc.js**: Prettier configuration file for code formatting.
 - **.watchmanconfig**: Watchman configuration file for monitoring changes.
 
+
 ## Installation
 
 1. Clone the repository:
@@ -41,10 +50,10 @@ Stay tuned for updates, including AI-powered innovations, to elevate your NEXUS 
     npm install
     ```
     
-3. Connect your mobile through usb:
-   -Enable USB DEBUGGING & INSTALL VIA USB
+3. Connect your mobile device via USB:
+   - Enable USB DEBUGGING & INSTALL VIA USB
     
-3. Start the development server:
+4. Start the development server:
     ```bash
     npx react-native start
     ```
