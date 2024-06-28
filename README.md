@@ -48,9 +48,3 @@ Stay tuned for updates, including AI-powered innovations, to elevate your NEXUS 
     ```bash
     npx react-native start
     ```
-
-## Running Tests
-
-To execute the test suite, run:
-```bash
-npm test
