@@ -1,31 +1,21 @@
 /* eslint-disable react/no-unstable-nested-components */
-/* eslint-disable prettier/prettier */
-import React, {useEffect} from 'react';
+import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createStackNavigator} from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ProfileScreen from './ProfileScreen';
-import HomeScreen from './HomeScreen';
-import PostScreen from './PostScreen';
-import SearchScreen from './SearchScreen';
-import ChatScreen from './ChatScreen';
-import DetailedChatScreen from './DetailedChatScreen';
-import auth from '@react-native-firebase/auth';
-import Welcome from './Welcome';
-import AddProfile from './AddProfile';
-import SignIn from './SignIn';
-import SignUp from './SignUp';
+import HomeScreen from '../screens/HomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import PostScreen from '../screens/PostScreen';
+import SearchScreen from '../screens/SearchScreen';
+import ChatStackNavigator from './ChatStackNavigator'; // Import Chat Stack
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
-const MainTabNavigator = ({navigation}) => {
+export default function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarIcon: ({focused, color, size}) => {
           let iconName;
-
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Search') {
@@ -44,8 +34,10 @@ const MainTabNavigator = ({navigation}) => {
         tabBarStyle: {
           backgroundColor: 'white',
           borderTopWidth: 0,
+          borderTopRightRadius: 50,
+          borderTopLeftRadius: 50,
           height: 60,
-          paddingBottom: 10,
+          padding: 10,
         },
         tabBarItemStyle: ({focused}) => ({
           backgroundColor: focused ? 'purple' : 'white',
@@ -83,27 +75,7 @@ const MainTabNavigator = ({navigation}) => {
         name="Profile"
         component={ProfileScreen}
         options={{headerShown: false}}
-        initialParams={{navigation}}
       />
     </Tab.Navigator>
   );
-};
-
-const ChatStackNavigator = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ChatS"
-        component={ChatScreen}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="DetailedChat"
-        component={DetailedChatScreen}
-        options={{headerShown: false}}
-      />
-    </Stack.Navigator>
-  );
-};
-
-export default MainTabNavigator;
+}

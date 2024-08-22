@@ -1,14 +1,13 @@
-/* eslint-disable prettier/prettier */
 import React, {useEffect, useState} from 'react';
 import {
-  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   RefreshControl,
   View,
 } from 'react-native';
-import {Card, Text, ActivityIndicator, Button} from 'react-native-paper';
+import {Card, Text, Button} from 'react-native-paper';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
@@ -20,7 +19,8 @@ const HomeScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const user = auth().currentUser;
   const [likes, setLikes] = useState({});
-  const handleError = (error: unknown) => {
+
+  const handleError = error => {
     console.error('Error fetching user data or posts:', error);
     Alert.alert('Error', 'An error occurred. Please try again later.');
   };
@@ -65,20 +65,17 @@ const HomeScreen = ({navigation}) => {
       setRefreshing(false);
     }
   };
+
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  const handleLikePress = async (postId: React.Key | null | undefined) => {
+  const handleLikePress = async postId => {
     try {
       const liked = likes[postId].likedBy?.includes(username) || false;
       console.log(username);
       const updatedLikedBy = liked
-        ? [
-            ...likes[postId].likedBy.filter(
-              (id: string | undefined) => id !== username,
-            ),
-          ]
+        ? [...likes[postId].likedBy.filter(id => id !== username)]
         : [...likes[postId].likedBy, username];
       const updatedLikeCount = liked
         ? likes[postId].likeCount - 1
@@ -101,30 +98,8 @@ const HomeScreen = ({navigation}) => {
       handleError(error);
     }
   };
-  const renderPost = (post: {
-    imageUrl: any;
-    createdAt: any;
-    id: React.Key | null | undefined;
-    userName:
-      | string
-      | number
-      | boolean
-      | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | Iterable<React.ReactNode>
-      | React.ReactPortal
-      | null
-      | undefined;
-    content:
-      | string
-      | number
-      | boolean
-      | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-      | Iterable<React.ReactNode>
-      | React.ReactPortal
-      | null
-      | undefined;
-    likedBy: any;
-  }) => {
+
+  const renderPost = post => {
     const hasImage = !!post.imageUrl;
     const timestamp = post.createdAt;
     const dateString = timestamp.toDate().toLocaleString();
@@ -174,7 +149,13 @@ const HomeScreen = ({navigation}) => {
     <>
       {loading ? (
         <SafeAreaView style={styles.container}>
-          <ActivityIndicator animating={true} size={'large'} />
+          <SkeletonPlaceholder>
+            <View style={styles.skeletonContainer}>
+              <View style={styles.skeletonCard} />
+              <View style={styles.skeletonCard} />
+              <View style={styles.skeletonCard} />
+            </View>
+          </SkeletonPlaceholder>
         </SafeAreaView>
       ) : (
         <ScrollView
@@ -192,12 +173,24 @@ const HomeScreen = ({navigation}) => {
   );
 };
 
-export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  skeletonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  skeletonCard: {
+    width: '90%',
+    height: 150,
+    marginBottom: 15,
+    borderRadius: 15,
+    backgroundColor: '#E0E0E0',
   },
   card: {
     marginTop: 5,
@@ -248,3 +241,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default HomeScreen;

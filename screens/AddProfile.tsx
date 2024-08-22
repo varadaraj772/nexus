@@ -1,11 +1,9 @@
-/* eslint-disable prettier/prettier */
 import React, {useState} from 'react';
-import {StyleSheet, SafeAreaView, Alert, View, Image} from 'react-native';
+import {StyleSheet, SafeAreaView, Image} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
 import {
-  Avatar,
   Button,
   Dialog,
   IconButton,
@@ -58,7 +56,7 @@ const AddProfile = ({navigation}) => {
       await postRef.update({
         imageurl: imageUrl,
       });
-      navigation.navigate('HOME');
+      navigation.navigate('Home');
     }
   };
 

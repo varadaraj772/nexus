@@ -1,10 +1,10 @@
-/* eslint-disable prettier/prettier */
 import React, {useState, useEffect} from 'react';
 import {View, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
-import {ActivityIndicator, Avatar, Searchbar, Text} from 'react-native-paper';
+import {Avatar, Searchbar, Text} from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 import {Image} from 'react-native';
 import auth from '@react-native-firebase/auth';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -90,6 +90,7 @@ const SearchScreen = ({navigation}) => {
       return newChatRoom.id;
     }
   };
+
   return (
     <View style={styles.container}>
       <Searchbar
@@ -103,11 +104,13 @@ const SearchScreen = ({navigation}) => {
         <Image source={require('../assets/search.png')} style={styles.image} />
       )}
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          animating={true}
-          style={styles.activityIndicator}
-        />
+        <SkeletonPlaceholder>
+          <View style={styles.skeletonContainer}>
+            <View style={styles.skeletonProfile} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonText} />
+          </View>
+        </SkeletonPlaceholder>
       ) : (
         <FlatList
           data={usernames}
@@ -141,9 +144,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  activityIndicator: {
-    marginTop: 20,
-  },
   searchResult: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -174,6 +174,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: '#888',
+  },
+  skeletonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  skeletonProfile: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  skeletonText: {
+    height: 20,
+    width: 200,
+    borderRadius: 4,
+    marginLeft: 10,
   },
 });
 

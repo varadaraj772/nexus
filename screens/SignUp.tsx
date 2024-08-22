@@ -58,7 +58,7 @@ export default function SignUp({navigation}) {
       });
       setErrmsg('User Created Successfully!');
       showDialog();
-      navigation.navigate('ADDPROFILE');
+      navigation.navigate('AddProfile');
     } catch (error) {
       setErrmsg(error.message);
       showDialog();
@@ -152,7 +152,7 @@ export default function SignUp({navigation}) {
             style={styles.button}
             onPress={handleSignup}
             disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'CREATE ACCOUNT'}
+            {isLoading ? 'Loading...' : 'SignUp'}
           </Button>
         </View>
         <Portal>

@@ -8,7 +8,7 @@ export default function Welcome({navigation}) {
   const user = auth().currentUser;
   useEffect(() => {
     if (user) {
-      return navigation.navigate('HOME');
+      return navigation.navigate('Home');
     }
     StatusBar.setBackgroundColor('#0c0c0c');
   }, []);
@@ -23,12 +23,12 @@ export default function Welcome({navigation}) {
         <View style={styles.buttonContainer}>
           <FAB
             label="SIGN IN"
-            onPress={() => navigation.navigate('LOGIN')}
+            onPress={() => navigation.navigate('SignIn')}
             style={styles.button}
           />
           <FAB
             label="SIGN UP"
-            onPress={() => navigation.navigate('CREATE ACCOUNT')}
+            onPress={() => navigation.navigate('SignUp')}
             style={styles.button}
           />
         </View>

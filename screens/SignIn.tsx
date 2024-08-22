@@ -28,10 +28,11 @@ export default function SignIn({navigation}) {
       showDialog();
       return;
     }
+    console.log(auth);
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.navigate('HOME');
+        navigation.navigate('Home');
       })
       .catch(error => {
         setErrmsg(error.message);
@@ -42,7 +43,7 @@ export default function SignIn({navigation}) {
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
-        <Image source={require('../assets/login.png')} style={styles.image} />
+        <Image source={require('../assets/signup.png')} style={styles.image} />
         <TextInput
           label="Email"
           mode="outlined"
@@ -67,13 +68,7 @@ export default function SignIn({navigation}) {
           }
         />
         <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
-          LOGIN
-        </Button>
-        <Button
-          onPress={navigation.navigate('ADDPROFILE')}
-          mode="elevated"
-          style={styles.input}>
-          LOGIN
+          SignIn
         </Button>
         <HelperText
           type="error"
