@@ -83,7 +83,7 @@ const ProfileScreen = ({navigation}) => {
 
   const SignOut = () => {
     auth().signOut();
-    navigation.popToTop();
+    navigation.replace('Welcome');
   };
 
   const imgData = userData?.imageurl && {uri: userData.imageurl};
@@ -110,16 +110,14 @@ const ProfileScreen = ({navigation}) => {
         </View>
         <View style={styles.postsContainer}>
           <Text style={styles.postsHeader}>POSTS</Text>
-
           {posts.length > 0 ? (
             posts.map(post => (
               <Card key={post.id} style={styles.postCard}>
                 <Card.Content>
                   <Title style={styles.postTitle}>{post.content}</Title>
-
                   <Paragraph style={styles.postDate}>
                     {moment(post.createdAt.toDate()).format(
-                      'MMMM Do YYYY, h:mm:ss a',
+                      'MMMM Do YYYY, h:mm a',
                     )}
                   </Paragraph>
                 </Card.Content>
@@ -144,8 +142,8 @@ const ProfileScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 10,
+    backgroundColor: 'white',
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -183,15 +181,10 @@ const styles = StyleSheet.create({
   },
   postCard: {
     marginBottom: 20,
-    elevation: 2,
+    elevation: 5,
   },
   postTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  postAuthor: {
-    fontSize: 14,
-    color: 'gray',
+    fontSize: 15,
   },
   postDate: {
     fontSize: 14,

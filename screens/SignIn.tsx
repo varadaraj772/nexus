@@ -22,7 +22,7 @@ export default function SignIn({navigation}) {
   const [errmsg, setErrmsg] = useState('');
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
-  function handleSignUp() {
+  function handleSignIn() {
     if (!email || !password) {
       setErrmsg('Please fill all the details');
       showDialog();
@@ -67,7 +67,7 @@ export default function SignIn({navigation}) {
             />
           }
         />
-        <Button onPress={handleSignUp} mode="elevated" style={styles.input}>
+        <Button onPress={handleSignIn} mode="elevated" style={styles.input}>
           SignIn
         </Button>
         <HelperText

@@ -1,15 +1,24 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef, useCallback, useMemo} from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
   RefreshControl,
   View,
+  Alert,
 } from 'react-native';
-import {Card, Text, Button} from 'react-native-paper';
+import {
+  Card,
+  Text,
+  Button,
+  TextInput,
+  Badge,
+  Divider,
+} from 'react-native-paper';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import RBSheet from 'react-native-raw-bottom-sheet';
 import moment from 'moment';
 
 const HomeScreen = ({navigation}) => {
@@ -19,6 +28,10 @@ const HomeScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const user = auth().currentUser;
   const [likes, setLikes] = useState({});
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState('');
+  const refRBSheet = useRef();
+  const [postId, setPostId] = useState(null);
 
   const handleError = error => {
     console.error('Error fetching user data or posts:', error);
@@ -28,36 +41,42 @@ const HomeScreen = ({navigation}) => {
   const fetchPosts = async () => {
     try {
       setRefreshing(true);
-      setUsername(
-        (await firestore().collection('users').doc(user.uid).get()).data()
-          .UserName,
-      );
+      const userSnapshot = await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .get();
+      setUsername(userSnapshot.data().UserName);
+
       const postsRef = firestore().collection('posts');
       const querySnapshot = await postsRef.get();
-      const fetchedPosts = querySnapshot.docs.map(doc => {
-        const postData =
-          typeof doc.data() === 'object' && doc.data() !== null
-            ? doc.data()
-            : {};
-        return {
-          id: doc.id,
-          ...postData,
-          likedBy: postData.likedBy || [],
-          likeCount: doc.data().likeCount || 0,
-        };
-      });
+      const fetchedPosts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        likedBy: doc.data().likedBy || [],
+        likeCount: doc.data().likeCount || 0,
+      }));
+
       setPosts(fetchedPosts);
 
-      setLikes(
-        fetchedPosts.reduce((acc, post) => {
-          acc[post.id] = {
-            ...post,
-            likedBy: post.likedBy,
-            likeCount: post.likeCount,
-          };
-          return acc;
-        }, {}),
-      );
+      const commentsPromises = fetchedPosts.map(async post => {
+        const commentsSnapshot = await firestore()
+          .collection('posts')
+          .doc(post.id)
+          .collection('comments')
+          .get();
+        return {
+          id: post.id,
+          comments: commentsSnapshot.docs.map(doc => doc.data()),
+        };
+      });
+
+      const commentsResults = await Promise.all(commentsPromises);
+      const commentsData = commentsResults.reduce((acc, {id, comments}) => {
+        acc[id] = comments;
+        return acc;
+      }, {});
+
+      setComments(commentsData);
     } catch (error) {
       handleError(error);
     } finally {
@@ -70,80 +89,154 @@ const HomeScreen = ({navigation}) => {
     fetchPosts();
   }, []);
 
-  const handleLikePress = async postId => {
-    try {
-      const liked = likes[postId].likedBy?.includes(username) || false;
-      console.log(username);
-      const updatedLikedBy = liked
-        ? [...likes[postId].likedBy.filter(id => id !== username)]
-        : [...likes[postId].likedBy, username];
-      const updatedLikeCount = liked
-        ? likes[postId].likeCount - 1
-        : likes[postId].likeCount + 1;
+  const handleLikePress = useCallback(
+    async postId => {
+      try {
+        const postLikes = likes[postId]?.likedBy || [];
+        const liked = postLikes.includes(username);
+        const updatedLikedBy = liked
+          ? postLikes.filter(id => id !== username)
+          : [...postLikes, username];
+        const updatedLikeCount = liked
+          ? (likes[postId]?.likeCount || 0) - 1
+          : (likes[postId]?.likeCount || 0) + 1;
 
-      await firestore().collection('posts').doc(postId).update({
-        likedBy: updatedLikedBy,
-        likeCount: updatedLikeCount,
-      });
-
-      setLikes({
-        ...likes,
-        [postId]: {
-          ...likes[postId],
+        await firestore().collection('posts').doc(postId).update({
           likedBy: updatedLikedBy,
           likeCount: updatedLikeCount,
-        },
-      });
+        });
+
+        setLikes(prevLikes => ({
+          ...prevLikes,
+          [postId]: {
+            ...prevLikes[postId],
+            likedBy: updatedLikedBy,
+            likeCount: updatedLikeCount,
+          },
+        }));
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    [likes, username],
+  );
+
+  const handleCommentPress = useCallback(postId => {
+    setPostId(postId);
+    setNewComment('');
+    refRBSheet.current.open();
+  }, []);
+
+  const handleAddComment = async () => {
+    if (newComment.trim() === '' || !postId) return;
+
+    const commentData = {
+      text: newComment,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+      author: username,
+    };
+
+    try {
+      await firestore()
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .add(commentData);
+
+      setComments(prevComments => ({
+        ...prevComments,
+        [postId]: [...(prevComments[postId] || []), commentData],
+      }));
+
+      setNewComment('');
+      refRBSheet.current.close();
     } catch (error) {
       handleError(error);
     }
   };
 
-  const renderPost = post => {
-    const hasImage = !!post.imageUrl;
-    const timestamp = post.createdAt;
-    const dateString = timestamp.toDate().toLocaleString();
-    const liked = likes[post.id]?.likedBy?.includes(username) || false;
-    const likedCount = likes[post.id]?.likeCount;
-    return (
-      <Card style={styles.card} mode="elevated" key={post.id}>
-        <View style={styles.cardHeader}>
-          <Text variant="titleLarge" style={styles.username}>
-            {post.userName}
-          </Text>
-          <Text
-            variant="labelMedium"
-            style={[styles.timestamp, styles.alignRight]}>
-            {moment(post.createdAt.toDate()).format('MMMM Do YYYY, h:mm:ss a')}
-          </Text>
-        </View>
-        {hasImage && (
-          <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
-        )}
-        <Card.Content style={styles.content}>
-          <Text variant="bodyLarge">{post.content}</Text>
-        </Card.Content>
-        <Card.Actions style={styles.cardActions}>
-          <Button
-            icon={liked ? 'cards-heart' : 'cards-heart-outline'}
-            mode="outlined"
-            onPress={() => handleLikePress(post.id)}>
-            <Text style={styles.text}>
-              {likedCount === 0
-                ? likedCount
-                : likedCount === 1
-                ? 'by ' + post.likedBy[0]
-                : 'by ' +
-                  post.likedBy[post.likedBy.length - 1] +
-                  ' and ' +
-                  likedCount +
-                  ' others'}
+  const likedPosts = useMemo(() => {
+    return posts.reduce((acc, post) => {
+      acc[post.id] = post.likedBy.includes(username);
+      return acc;
+    }, {});
+  }, [posts, username]);
+
+  const renderPost = useCallback(
+    post => {
+      const hasImage = !!post.imageUrl;
+      const postLikes = likes[post.id] || {};
+      const liked = postLikes.likedBy?.includes(username) || false;
+      const likedCount = postLikes.likeCount || 0;
+
+      return (
+        <Card style={styles.card} mode="elevated" key={post.id}>
+          <View style={styles.cardHeader}>
+            <Text variant="titleLarge" style={styles.username}>
+              {post.userName}
             </Text>
-          </Button>
-        </Card.Actions>
-      </Card>
-    );
-  };
+            <Text
+              variant="labelMedium"
+              style={[styles.timestamp, styles.alignRight]}>
+              {moment(post.createdAt.toDate()).format(
+                'MMMM Do YYYY, h:mm:ss a',
+              )}
+            </Text>
+          </View>
+          {hasImage && (
+            <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
+          )}
+          <Card.Content style={styles.content}>
+            <Text variant="bodyLarge">{post.content}</Text>
+          </Card.Content>
+          <Card.Actions style={styles.cardActions}>
+            <Button
+              icon={liked ? 'cards-heart' : 'cards-heart-outline'}
+              mode="outlined"
+              onPress={() => handleLikePress(post.id)}>
+              <Text style={styles.text}>
+                {likedCount === 0
+                  ? likedCount
+                  : likedCount === 1
+                  ? 'by ' + postLikes.likedBy[0]
+                  : 'by ' +
+                    postLikes.likedBy[postLikes.likedBy.length - 1] +
+                    ' and ' +
+                    likedCount +
+                    ' others'}
+              </Text>
+            </Button>
+            <View>
+              <Badge style={styles.badge} size={39}>
+                556
+              </Badge>
+              <Button
+                mode="outlined"
+                onPress={() => handleCommentPress(post.id)}
+                style={{paddingLeft: 17}}>
+                Comments
+              </Button>
+            </View>
+          </Card.Actions>
+        </Card>
+      );
+    },
+    [likes, handleLikePress, handleCommentPress],
+  );
+
+  const renderComments = useMemo(
+    () =>
+      comments[postId]?.map((comment, index) => (
+        <View key={index} style={styles.commentContainer}>
+          <Text variant="labelMedium" style={styles.commentAuthor}>
+            {comment.author}
+          </Text>
+          <Text variant="bodyMedium">{comment.text}</Text>
+          <Divider />
+        </View>
+      )),
+    [comments, postId],
+  );
 
   return (
     <>
@@ -169,6 +262,32 @@ const HomeScreen = ({navigation}) => {
           )}
         </ScrollView>
       )}
+      <RBSheet
+        ref={refRBSheet}
+        height={300}
+        openDuration={250}
+        customStyles={{
+          container: {
+            padding: 10,
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+          },
+        }}>
+        <ScrollView>{renderComments}</ScrollView>
+        <TextInput
+          label="Add a comment"
+          value={newComment}
+          onChangeText={setNewComment}
+          mode="outlined"
+          style={styles.commentInput}
+        />
+        <Button
+          mode="contained"
+          onPress={handleAddComment}
+          disabled={newComment.trim() === ''}>
+          Post
+        </Button>
+      </RBSheet>
     </>
   );
 };
@@ -202,16 +321,15 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 7,
+    alignItems: 'center',
+    padding: 5,
     backgroundColor: '#F0E7FF',
     borderTopStartRadius: 15,
     borderTopEndRadius: 15,
   },
   username: {
     fontWeight: 'bold',
-    textAlign: 'left',
   },
   timestamp: {
     color: 'gray',
@@ -223,6 +341,7 @@ const styles = StyleSheet.create({
     height: 400,
     resizeMode: 'stretch',
     borderRadius: 0,
+    marginVertical: 10,
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
   },
@@ -233,12 +352,37 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   cardActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 5,
     backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginVertical: 5,
   },
   text: {
+    marginLeft: 25,
+  },
+  commentContainer: {
+    flexDirection: 'column',
+    marginVertical: 10,
+    paddingHorizontal: 5,
+  },
+  commentAuthor: {
     fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  commentInput: {
+    marginVertical: 10,
+  },
+  badge: {
+    position: 'absolute',
+    top: 1,
+    left: 0,
+    fontWeight: '400',
+    backgroundColor: '#e0ccff',
+    color: 'black',
+    fontSize: 15,
   },
 });
 

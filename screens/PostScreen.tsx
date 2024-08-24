@@ -2,13 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Image, SafeAreaView, ScrollView} from 'react-native';
 import {
   TextInput,
-  IconButton,
   Button,
-  ActivityIndicator,
   Dialog,
   Portal,
   Text,
-  PaperProvider,
+  Provider as PaperProvider,
 } from 'react-native-paper';
 import {launchImageLibrary} from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
@@ -26,7 +24,6 @@ const PostScreen = ({navigation}) => {
   const [visible, setVisible] = useState(false);
   const [caption, setCaption] = useState('');
   const [loadingCaption, setLoadingCaption] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showWebView, setShowWebView] = useState(false);
 
   const showDialog = () => setVisible(true);
@@ -48,8 +45,6 @@ const PostScreen = ({navigation}) => {
       } else {
         const source = {uri: result.assets[0].uri};
         setImage(source);
-        // Generate caption when image is picked
-        // You might choose to set up the WebView for caption generation here or just wait for the button click
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -76,8 +71,10 @@ const PostScreen = ({navigation}) => {
         return;
       }
       const timestamp = firestore.FieldValue.serverTimestamp();
-      const postRef = firestore().collection('posts').doc();
+      const postRef = firestore().collection('posts').doc(); // Generates a new document reference with a unique ID
+      const postId = postRef.id; // Get the generated unique ID for the post
       let imageUrl = null;
+
       if (image) {
         const filename = image.uri.split('/').pop();
         const storageRef = storage().ref(`posts/${filename}`);
@@ -86,12 +83,14 @@ const PostScreen = ({navigation}) => {
       }
 
       await postRef.set({
+        postId, // Save the generated postId
         content: postText || caption,
         authorId: user.uid,
         createdAt: timestamp,
         userName: userData.UserName,
         imageUrl,
       });
+
       navigation.navigate('Home');
       setPostText('');
       setImage(null);
@@ -100,17 +99,6 @@ const PostScreen = ({navigation}) => {
     } catch (e) {
       console.error('Error adding post:', e);
       setUploading(false);
-    }
-  };
-
-  const handleWebViewNavigationStateChange = event => {
-    if (event.url.includes('caption_copied')) {
-      const params = new URLSearchParams(new URL(event.url).search);
-      const captionFromWebView = params.get('caption');
-      if (captionFromWebView) {
-        setCaption(captionFromWebView);
-        setShowWebView(false); // Close WebView
-      }
     }
   };
 
@@ -126,7 +114,16 @@ const PostScreen = ({navigation}) => {
             source={{
               uri: 'https://captioncraftai-varadaraj-s-projects.vercel.app/',
             }}
-            onNavigationStateChange={handleWebViewNavigationStateChange}
+            onMessage={event => {
+              const {data} = event.nativeEvent; // Use nativeEvent to get data
+              if (data === '') {
+                setErrmsg('Please try again');
+                showDialog();
+              } else {
+                setPostText(data); // Set TextInput with data
+              }
+              setShowWebView(false); // Close WebView after setting data
+            }}
           />
         ) : (
           <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -157,10 +154,10 @@ const PostScreen = ({navigation}) => {
                 Select Image
               </Button>
               <Button
+                icon="creation"
                 mode="contained-tonal"
                 style={styles.longButton}
-                onPress={() => setShowWebView(true)}
-                disabled={!image}>
+                onPress={() => setShowWebView(true)}>
                 GENERATE CAPTION
               </Button>
               <Button
@@ -171,32 +168,6 @@ const PostScreen = ({navigation}) => {
                 ADD POST
               </Button>
             </View>
-            {loadingCaption && (
-              <ActivityIndicator
-                size="large"
-                animating={true}
-                style={styles.activityIndicator}
-              />
-            )}
-            {caption && (
-              <View style={styles.captionContainer}>
-                <Text style={styles.captionText}>{caption}</Text>
-                <Button
-                  mode="contained"
-                  onPress={() => {
-                    // Assuming you want to open the URL in the browser
-                    Linking.openURL(
-                      `https://captioncraftai-varadaraj-s-projects.vercel.app/?caption=${encodeURIComponent(
-                        caption,
-                      )}`,
-                    );
-                    setCopied(true);
-                  }}
-                  style={styles.copyButton}>
-                  {copied ? 'COPIED' : 'COPY CAPTION'}
-                </Button>
-              </View>
-            )}
             <Portal>
               <Dialog visible={visible} onDismiss={hideDialog}>
                 <Dialog.Title>NOTICE</Dialog.Title>
@@ -221,12 +192,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   scrollViewContainer: {
-    padding: 20,
+    flexGrow: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
   imageContainer: {
     width: '100%',
-    height: 200,
+    height: 400,
     marginBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -252,6 +225,8 @@ const styles = StyleSheet.create({
   longButton: {
     width: '100%',
     marginBottom: 10,
+    padding: 5,
+    fontWeight: 'bold',
   },
   captionContainer: {
     width: '100%',

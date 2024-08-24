@@ -7,15 +7,21 @@ import {
   Dialog,
   Portal,
   PaperProvider,
+  Avatar,
 } from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import {Image, SafeAreaView, StatusBar, StyleSheet, View} from 'react-native';
+import {SafeAreaView, StyleSheet, View, StatusBar} from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
+import storage from '@react-native-firebase/storage';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function SignUp({navigation}) {
   useEffect(() => {
     StatusBar.setBackgroundColor('gray');
+    getPlaceholderImageUrl();
   }, []);
 
   const [email, setEmail] = useState('');
@@ -26,8 +32,39 @@ export default function SignUp({navigation}) {
   const [errmsg, setErrmsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [croppedImage, setCroppedImage] = useState(null);
+  const [placeholderImageUrl, setPlaceholderImageUrl] = useState(null); // State to hold placeholder image URL
+
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
+
+  const getPlaceholderImageUrl = async () => {
+    try {
+      const storageRef = storage().ref('profile_photos/avatar_placeholder.png');
+      const url = await storageRef.getDownloadURL();
+      setPlaceholderImageUrl(url);
+    } catch (error) {
+      console.error('Error getting placeholder image URL:', error);
+    }
+  };
+
+  const pickAndCropImage = async () => {
+    try {
+      const result = await launchImageLibrary({mediaType: 'photo'});
+      if (!result.didCancel && !result.error) {
+        const croppedImage = await ImageCropPicker.openCropper({
+          path: result.assets[0].uri,
+          width: 300,
+          height: 300,
+          cropping: true,
+          cropperCircleOverlay: true,
+        });
+        setCroppedImage({uri: croppedImage.path});
+      }
+    } catch (error) {
+      console.error('Error cropping image:', error);
+    }
+  };
 
   const handleSignup = async () => {
     if (!validateForm()) {
@@ -39,7 +76,9 @@ export default function SignUp({navigation}) {
     try {
       const usernameExists = await checkUsernameExists(username);
       if (usernameExists) {
-        setErrmsg('Username already exists!');
+        setErrmsg(
+          'Username already exists! Please choose a different username',
+        );
         showDialog();
         setIsLoading(false);
         return;
@@ -50,15 +89,26 @@ export default function SignUp({navigation}) {
         password,
       );
       const uid = userCred.user.uid;
+
+      let imageUrl = placeholderImageUrl; // Use placeholder image URL by default
+      if (croppedImage) {
+        const filename = croppedImage.uri.split('/').pop();
+        const storageRef = storage().ref(`profile_photos/${filename}`);
+        await storageRef.putFile(croppedImage.uri);
+        imageUrl = await storageRef.getDownloadURL();
+      }
+
       await firestore().collection('users').doc(uid).set({
         UserName: username,
         password: password,
         FullName: fullName.toUpperCase(),
         Email: email,
+        imageurl: imageUrl,
       });
+
       setErrmsg('User Created Successfully!');
       showDialog();
-      navigation.navigate('AddProfile');
+      navigation.navigate('Home'); // Navigate to the Home screen after successful signup
     } catch (error) {
       setErrmsg(error.message);
       showDialog();
@@ -94,18 +144,20 @@ export default function SignUp({navigation}) {
     }
     return true;
   };
+
   const iconName = showPassword ? 'eye' : 'eye-off';
+
   return (
     <PaperProvider>
       <SafeAreaView style={styles.container}>
-        {email || password || username || fullName ? (
-          ''
-        ) : (
-          <Image
-            source={require('../assets/signup.png')}
-            style={styles.image}
-          />
-        )}
+        <Avatar.Image
+          size={100}
+          source={
+            croppedImage ? {uri: croppedImage.uri} : {uri: placeholderImageUrl}
+          }
+          style={styles.avatar}
+        />
+        <Button onPress={pickAndCropImage}>Choose Profile Picture</Button>
 
         <TextInput
           label="Email"
@@ -152,14 +204,16 @@ export default function SignUp({navigation}) {
             style={styles.button}
             onPress={handleSignup}
             disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'SignUp'}
+            {isLoading ? 'Loading...' : 'Sign Up'}
           </Button>
         </View>
         <Portal>
           <Dialog visible={visible} onDismiss={hideDialog}>
-            <Dialog.Title>Error</Dialog.Title>
+            <Dialog.Title>
+              {errmsg === 'User Created Successfully!' ? 'Success' : 'Error'}
+            </Dialog.Title>
             <Dialog.Content>
-              <Text variant="bodyMedium">{errmsg}</Text>
+              <Text>{errmsg}</Text>
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={hideDialog}>Close</Button>
@@ -170,6 +224,7 @@ export default function SignUp({navigation}) {
     </PaperProvider>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -177,11 +232,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  image: {
-    width: '100%',
-    height: '50%',
-    resizeMode: 'cover',
-    marginBottom: '5%',
+  avatar: {
+    marginBottom: 10,
   },
   input: {
     marginBottom: 5,

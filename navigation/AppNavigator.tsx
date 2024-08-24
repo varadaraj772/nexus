@@ -19,10 +19,10 @@ export default function AppNavigator() {
       setUser(user);
       if (initializing) setInitializing(false);
     });
-    return subscriber; // Unsubscribe on unmount
+    return subscriber;
   }, [initializing]);
 
-  if (initializing) return null; // Optionally show a loading screen
+  if (initializing) return null;
 
   return (
     <NavigationContainer>
@@ -30,7 +30,7 @@ export default function AppNavigator() {
         {user ? (
           <Stack.Screen
             name="Main"
-            component={MainTabNavigator} // Loads the Tab Navigator if user is logged in
+            component={MainTabNavigator}
             options={{headerShown: false}}
           />
         ) : (

@@ -6,7 +6,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PostScreen from '../screens/PostScreen';
 import SearchScreen from '../screens/SearchScreen';
-import ChatStackNavigator from './ChatStackNavigator'; // Import Chat Stack
+import ChatStackNavigator from './ChatStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
