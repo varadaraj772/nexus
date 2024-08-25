@@ -6,6 +6,7 @@ import {
   RefreshControl,
   View,
   Alert,
+  Image,
 } from 'react-native';
 import {
   Card,
@@ -31,6 +32,7 @@ const HomeScreen = ({navigation}) => {
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
   const refRBSheet = useRef();
+  const [imageDimensions, setImageDimensions] = useState({});
   const [postId, setPostId] = useState(null);
 
   const handleError = error => {
@@ -54,9 +56,21 @@ const HomeScreen = ({navigation}) => {
         ...doc.data(),
         likedBy: doc.data().likedBy || [],
         likeCount: doc.data().likeCount || 0,
+        commentCount: doc.data().commentCount || 0,
       }));
 
       setPosts(fetchedPosts);
+
+      fetchedPosts.forEach(post => {
+        if (post.imageUrl) {
+          Image.getSize(post.imageUrl, (width, height) => {
+            setImageDimensions(prev => ({
+              ...prev,
+              [post.id]: {width, height},
+            }));
+          });
+        }
+      });
 
       const commentsPromises = fetchedPosts.map(async post => {
         const commentsSnapshot = await firestore()
@@ -137,16 +151,26 @@ const HomeScreen = ({navigation}) => {
     };
 
     try {
-      await firestore()
-        .collection('posts')
-        .doc(postId)
-        .collection('comments')
-        .add(commentData);
+      const postRef = firestore().collection('posts').doc(postId);
+
+      await postRef.collection('comments').add(commentData);
+
+      await postRef.update({
+        commentCount: firestore.FieldValue.increment(1),
+      });
 
       setComments(prevComments => ({
         ...prevComments,
         [postId]: [...(prevComments[postId] || []), commentData],
       }));
+
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId
+            ? {...post, commentCount: (post.commentCount || 0) + 1}
+            : post,
+        ),
+      );
 
       setNewComment('');
       refRBSheet.current.close();
@@ -168,6 +192,8 @@ const HomeScreen = ({navigation}) => {
       const postLikes = likes[post.id] || {};
       const liked = postLikes.likedBy?.includes(username) || false;
       const likedCount = postLikes.likeCount || 0;
+      const aspectRatio =
+        imageDimensions[post.id]?.width / imageDimensions[post.id]?.height || 1;
 
       return (
         <Card style={styles.card} mode="elevated" key={post.id}>
@@ -178,9 +204,7 @@ const HomeScreen = ({navigation}) => {
             <Text
               variant="labelMedium"
               style={[styles.timestamp, styles.alignRight]}>
-              {moment(post.createdAt.toDate()).format(
-                'MMMM Do YYYY, h:mm:ss a',
-              )}
+              {moment(post.createdAt.toDate()).format('MMMM Do YYYY, h:mm a')}
             </Text>
           </View>
           {hasImage && (
@@ -207,15 +231,16 @@ const HomeScreen = ({navigation}) => {
               </Text>
             </Button>
             <View>
-              <Badge style={styles.badge} size={39}>
-                556
+              <Badge style={styles.badge} size={35}>
+                {post.commentCount || 0}
               </Badge>
               <Button
                 mode="outlined"
+                icon="comment-text-multiple"
                 onPress={() => handleCommentPress(post.id)}
-                style={{paddingLeft: 17}}>
-                Comments
-              </Button>
+                style={{paddingLeft: 34}}
+                children={undefined}
+              />
             </View>
           </Card.Actions>
         </Card>
@@ -337,13 +362,12 @@ const styles = StyleSheet.create({
   alignRight: {
     textAlign: 'right',
   },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   img: {
-    height: 400,
-    resizeMode: 'stretch',
-    borderRadius: 0,
-    marginVertical: 10,
-    borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,
+    marginVertical: 5,
   },
   content: {
     paddingVertical: 10,
@@ -377,7 +401,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: 1,
+    top: 3,
     left: 0,
     fontWeight: '400',
     backgroundColor: '#e0ccff',
