@@ -310,7 +310,7 @@ const HomeScreen = ({navigation}) => {
           mode="contained"
           onPress={handleAddComment}
           disabled={newComment.trim() === ''}>
-          Post
+          Comment
         </Button>
       </RBSheet>
     </>

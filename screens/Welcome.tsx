@@ -59,6 +59,8 @@ const styles = StyleSheet.create({
     height: 460,
     resizeMode: 'contain',
     borderRadius: 100,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
   },
   buttonContainer: {
     marginTop: 40,
@@ -69,8 +71,5 @@ const styles = StyleSheet.create({
   button: {
     width: '50%',
     margin: 5,
-  },
-  gradient: {
-    flex: 1,
   },
 });

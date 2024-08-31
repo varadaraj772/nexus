@@ -11,6 +11,7 @@ import {
   Portal,
   Text,
   HelperText,
+  DefaultTheme,
 } from 'react-native-paper';
 import {Image} from 'react-native';
 
@@ -41,7 +42,7 @@ export default function SignIn({navigation}) {
   }
   const iconName = showPassword ? 'eye' : 'eye-off';
   return (
-    <PaperProvider>
+    <PaperProvider theme={DefaultTheme}>
       <SafeAreaView style={styles.container}>
         <Image source={require('../assets/signup.png')} style={styles.image} />
         <TextInput

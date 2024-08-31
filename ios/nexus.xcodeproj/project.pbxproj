@@ -14,6 +14,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		450D77B0C123892E5662818A /* Pods_nexus_nexusTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABB12B59C552C36689066F36 /* Pods_nexus_nexusTests.framework */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		5D8BC0962F014C2186F07D49 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FAD283E22FA4F61A8E9CA24 /* BootSplash.storyboard */; };
+		DF95AD81A78448F2A2CB22BA /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 80D1F27EF3194025BB78787D /* Colors.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +46,8 @@
 		89C6BE57DB24E9ADA2F236DE /* Pods-nexus-nexusTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nexus-nexusTests.release.xcconfig"; path = "Target Support Files/Pods-nexus-nexusTests/Pods-nexus-nexusTests.release.xcconfig"; sourceTree = "<group>"; };
 		ABB12B59C552C36689066F36 /* Pods_nexus_nexusTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_nexus_nexusTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		3FAD283E22FA4F61A8E9CA24 /* BootSplash.storyboard */ = {isa = PBXFileReference; name = "BootSplash.storyboard"; path = "nexus/BootSplash.storyboard"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		80D1F27EF3194025BB78787D /* Colors.xcassets */ = {isa = PBXFileReference; name = "Colors.xcassets"; path = "nexus/Colors.xcassets"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = folder.assetcatalog; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +96,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				3FAD283E22FA4F61A8E9CA24 /* BootSplash.storyboard */,
+				80D1F27EF3194025BB78787D /* Colors.xcassets */,
 			);
 			name = nexus;
 			sourceTree = "<group>";
@@ -242,6 +248,8 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				5D8BC0962F014C2186F07D49 /* BootSplash.storyboard in Resources */,
+				DF95AD81A78448F2A2CB22BA /* Colors.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

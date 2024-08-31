@@ -7,6 +7,7 @@ import {
   Portal,
   Text,
   Provider as PaperProvider,
+  DefaultTheme,
 } from 'react-native-paper';
 import {launchImageLibrary} from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
@@ -71,8 +72,8 @@ const PostScreen = ({navigation}) => {
         return;
       }
       const timestamp = firestore.FieldValue.serverTimestamp();
-      const postRef = firestore().collection('posts').doc(); // Generates a new document reference with a unique ID
-      const postId = postRef.id; // Get the generated unique ID for the post
+      const postRef = firestore().collection('posts').doc();
+      const postId = postRef.id;
       let imageUrl = null;
 
       if (image) {
@@ -107,7 +108,7 @@ const PostScreen = ({navigation}) => {
   }, []);
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={DefaultTheme}>
       <SafeAreaView style={styles.container}>
         {showWebView ? (
           <WebView
@@ -115,14 +116,14 @@ const PostScreen = ({navigation}) => {
               uri: 'https://captioncraftai-varadaraj-s-projects.vercel.app/',
             }}
             onMessage={event => {
-              const {data} = event.nativeEvent; // Use nativeEvent to get data
+              const {data} = event.nativeEvent;
               if (data === '') {
                 setErrmsg('Please try again');
                 showDialog();
               } else {
-                setPostText(data); // Set TextInput with data
+                data === 'Cancel' ? '' : setPostText(data);
               }
-              setShowWebView(false); // Close WebView after setting data
+              setShowWebView(false);
             }}
           />
         ) : (
@@ -147,7 +148,6 @@ const PostScreen = ({navigation}) => {
             />
             <View style={styles.buttonRow}>
               <Button
-                icon="image"
                 onPress={pickImage}
                 mode="contained-tonal"
                 style={styles.longButton}>
@@ -158,7 +158,7 @@ const PostScreen = ({navigation}) => {
                 mode="contained-tonal"
                 style={styles.longButton}
                 onPress={() => setShowWebView(true)}>
-                GENERATE CAPTION
+                Try Nexus.Ai
               </Button>
               <Button
                 mode="contained-tonal"

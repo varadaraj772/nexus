@@ -29,13 +29,13 @@ export default function MainTabNavigator() {
           }
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'black',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#6750a4',
+        tabBarInactiveTintColor: 'black',
         tabBarStyle: {
           backgroundColor: 'white',
           borderTopWidth: 0,
-          borderTopRightRadius: 50,
-          borderTopLeftRadius: 50,
+          borderTopRightRadius: 30,
+          borderTopLeftRadius: 30,
           height: 60,
           padding: 10,
         },
