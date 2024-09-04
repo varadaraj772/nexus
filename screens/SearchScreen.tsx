@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 import {Image} from 'react-native';
 import auth from '@react-native-firebase/auth';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import SearchSkeleton from '../skeletons/SearchSkeleton';
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -104,13 +105,14 @@ const SearchScreen = ({navigation}) => {
         <Image source={require('../assets/search.png')} style={styles.image} />
       )}
       {loading ? (
-        <SkeletonPlaceholder>
-          <View style={styles.skeletonContainer}>
-            <View style={styles.skeletonProfile} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonText} />
-          </View>
-        </SkeletonPlaceholder>
+        <>
+          <SearchSkeleton direction={'left'} />
+          <SearchSkeleton direction={'right'} />
+          <SearchSkeleton direction={'right'} />
+          <SearchSkeleton direction={'left'} />
+          <SearchSkeleton direction={'right'} />
+          <SearchSkeleton direction={'left'} />
+        </>
       ) : (
         <FlatList
           data={usernames}
@@ -174,24 +176,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: '#888',
-  },
-  skeletonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  skeletonProfile: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  skeletonText: {
-    height: 20,
-    width: 200,
-    borderRadius: 4,
-    marginLeft: 10,
   },
 });
 

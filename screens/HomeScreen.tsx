@@ -16,11 +16,11 @@ import {
   Badge,
   Divider,
 } from 'react-native-paper';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import moment from 'moment';
+import HomeSkeleton from '../skeletons/HomeSkeleton';
 
 const HomeScreen = ({navigation}) => {
   const [posts, setPosts] = useState([]);
@@ -43,6 +43,7 @@ const HomeScreen = ({navigation}) => {
   const fetchPosts = async () => {
     try {
       setRefreshing(true);
+      setLoading(true);
       const userSnapshot = await firestore()
         .collection('users')
         .doc(user.uid)
@@ -142,7 +143,9 @@ const HomeScreen = ({navigation}) => {
   }, []);
 
   const handleAddComment = async () => {
-    if (newComment.trim() === '' || !postId) return;
+    if (newComment.trim() === '' || !postId) {
+      return;
+    }
 
     const commentData = {
       text: newComment,
@@ -267,13 +270,10 @@ const HomeScreen = ({navigation}) => {
     <>
       {loading ? (
         <SafeAreaView style={styles.container}>
-          <SkeletonPlaceholder>
-            <View style={styles.skeletonContainer}>
-              <View style={styles.skeletonCard} />
-              <View style={styles.skeletonCard} />
-              <View style={styles.skeletonCard} />
-            </View>
-          </SkeletonPlaceholder>
+          <HomeSkeleton direction={'left'} />
+          <HomeSkeleton direction={'right'} />
+          <HomeSkeleton direction={'right'} />
+          <HomeSkeleton direction={'left'} />
         </SafeAreaView>
       ) : (
         <ScrollView
@@ -322,19 +322,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  skeletonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  skeletonCard: {
-    width: '90%',
-    height: 150,
-    marginBottom: 15,
-    borderRadius: 15,
-    backgroundColor: '#E0E0E0',
   },
   card: {
     marginTop: 5,
