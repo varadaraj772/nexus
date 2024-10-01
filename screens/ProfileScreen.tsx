@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { BlurView } from "@react-native-community/blur";
 import {
   ActivityIndicator,
   Text,
@@ -197,7 +198,10 @@ const ProfileScreen = ({ navigation }) => {
         visible={isEditModalVisible}
         onRequestClose={handleCancel}
       >
-        <View style={styles.modalContainer}>
+        <BlurView style={styles.modalContainer}
+        blurType="light"
+        blurAmount={10}
+        >
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Profile</Text>
             <TextInput
@@ -242,7 +246,7 @@ const ProfileScreen = ({ navigation }) => {
               Cancel
             </Button>
           </View>
-        </View>
+        </BlurView>
       </Modal>
       <Modal
         //transparent={true}
@@ -350,12 +354,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0
   },
   modalContent: {
     width: '95%',
-    backgroundColor: 'white',
-    padding: 16,
+    backgroundColor: '#F0E7FF',
+    padding: 5,
     borderRadius: 8,
     color:"black"
   },

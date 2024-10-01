@@ -5,12 +5,12 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   RefreshControl,
 } from 'react-native';
 import {ActivityIndicator, Avatar, Button, Text} from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import Skeleton from '../skeletons/Skeleton';
 
 const ChatScreen = ({navigation}) => {
   const [chatRooms, setChatRooms] = useState([]);
@@ -77,11 +77,7 @@ const ChatScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          animating={true}
-          style={styles.activityIndicator}
-        />
+       <Skeleton/>
       ) : (
         <FlatList
           data={chatRooms}

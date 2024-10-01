@@ -15,14 +15,16 @@ import {
   TextInput,
   Badge,
   Divider,
+  useTheme,
 } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import moment from 'moment';
 import HomeSkeleton from '../skeletons/HomeSkeleton';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -34,6 +36,7 @@ const HomeScreen = ({navigation}) => {
   const refRBSheet = useRef();
   const [imageDimensions, setImageDimensions] = useState({});
   const [postId, setPostId] = useState(null);
+  const {colors} = useTheme();
 
   const handleError = error => {
     console.error('Error fetching user data or posts:', error);
@@ -182,71 +185,74 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
-  const likedPosts = useMemo(() => {
-    return posts.reduce((acc, post) => {
-      acc[post.id] = post.likedBy.includes(username);
-      return acc;
-    }, {});
-  }, [posts, username]);
-
   const renderPost = useCallback(
     post => {
       const hasImage = !!post.imageUrl;
       const postLikes = likes[post.id] || {};
       const liked = postLikes.likedBy?.includes(username) || false;
       const likedCount = postLikes.likeCount || 0;
-      const aspectRatio =
-        imageDimensions[post.id]?.width / imageDimensions[post.id]?.height || 1;
 
       return (
-        <Card style={styles.card} mode="elevated" key={post.id}>
-          <View style={styles.cardHeader}>
-            <Text variant="titleLarge" style={styles.username}>
-              {post.userName}
-            </Text>
-            <Text
-              variant="labelMedium"
-              style={[styles.timestamp, styles.alignRight]}>
-              {moment(post.createdAt.toDate()).format('MMMM Do YYYY, h:mm a')}
-            </Text>
-          </View>
-          {hasImage && (
-            <Card.Cover source={{uri: post.imageUrl}} style={styles.img} />
-          )}
-          <Card.Content style={styles.content}>
-            <Text variant="bodyLarge">{post.content}</Text>
-          </Card.Content>
-          <Card.Actions style={styles.cardActions}>
-            <Button
-              icon={liked ? 'cards-heart' : 'cards-heart-outline'}
-              mode="outlined"
-              onPress={() => handleLikePress(post.id)}>
-              <Text style={styles.text}>
-                {likedCount === 0
-                  ? likedCount
-                  : likedCount === 1
-                  ? 'by ' + postLikes.likedBy[0]
-                  : 'by ' +
-                    postLikes.likedBy[postLikes.likedBy.length - 1] +
-                    ' and ' +
-                    likedCount +
-                    ' others'}
+        <>
+          <Card
+            style={[styles.card, {backgroundColor: colors.background}]}
+            mode="elevated"
+            key={post.id}>
+            <View style={styles.cardHeader}>
+              <Text variant="titleLarge" style={styles.username}>
+                {post.userName}
               </Text>
-            </Button>
-            <View>
-              <Badge style={styles.badge} size={35}>
-                {post.commentCount || 0}
-              </Badge>
-              <Button
-                mode="outlined"
-                icon="comment-text-multiple"
-                onPress={() => handleCommentPress(post.id)}
-                style={{paddingLeft: 34}}
-                children={undefined}
-              />
+              <Text
+                variant="labelMedium"
+                style={[styles.timestamp, styles.alignRight]}>
+                {moment(post.createdAt.toDate()).format('MMMM Do YYYY, h:mm a')}
+              </Text>
             </View>
-          </Card.Actions>
-        </Card>
+            {hasImage && (
+              <Card.Cover
+                source={{uri: post.imageUrl}}
+                style={styles.img}
+                resizeMode="contain"
+              />
+            )}
+            <Card.Content style={styles.content}>
+              <Text variant="bodyLarge">{post.content}</Text>
+            </Card.Content>
+            <Card.Actions style={styles.cardActions}>
+              <Button
+                icon={liked ? 'cards-heart' : 'cards-heart-outline'}
+                mode="outlined"
+                onPress={() => handleLikePress(post.id)}
+                textColor={colors.primary}>
+                <Text style={styles.text}>
+                  {likedCount === 0
+                    ? likedCount
+                    : likedCount === 1
+                    ? 'by ' + postLikes.likedBy[0]
+                    : 'by ' +
+                      postLikes.likedBy[postLikes.likedBy.length - 1] +
+                      ' and ' +
+                      likedCount +
+                      ' others'}
+                </Text>
+              </Button>
+              <View>
+                <Badge
+                  style={[styles.badge, {backgroundColor: colors.primary}]}
+                  size={35}>
+                  {post.commentCount || 0}
+                </Badge>
+                <Button
+                  mode="outlined"
+                  icon="comment-text-multiple"
+                  onPress={() => handleCommentPress(post.id)}
+                  style={{paddingLeft: 34}}
+                  children={undefined}
+                />
+              </View>
+            </Card.Actions>
+          </Card>
+        </>
       );
     },
     [likes, handleLikePress, handleCommentPress],
@@ -272,8 +278,6 @@ const HomeScreen = ({navigation}) => {
         <SafeAreaView style={styles.container}>
           <HomeSkeleton direction={'left'} />
           <HomeSkeleton direction={'right'} />
-          <HomeSkeleton direction={'right'} />
-          <HomeSkeleton direction={'left'} />
         </SafeAreaView>
       ) : (
         <ScrollView
@@ -336,7 +340,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 5,
-    backgroundColor: '#F0E7FF',
+    //backgroundColor: '#F0E7FF',
     borderTopStartRadius: 15,
     borderTopEndRadius: 15,
   },
@@ -354,11 +358,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   img: {
-    marginVertical: 5,
+    marginVertical: 2,
+    height: 400,
+    backgroundColor: 'white',
   },
   content: {
     paddingVertical: 10,
-    backgroundColor: '#F0E7FF',
+    //backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginTop: 5,
   },
@@ -367,7 +373,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 5,
-    backgroundColor: '#F0E7FF',
+    //backgroundColor: '#F0E7FF',
     borderRadius: 15,
     marginVertical: 5,
   },
@@ -391,7 +397,6 @@ const styles = StyleSheet.create({
     top: 3,
     left: 0,
     fontWeight: '400',
-    backgroundColor: '#e0ccff',
     color: 'black',
     fontSize: 15,
   },

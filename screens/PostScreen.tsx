@@ -7,7 +7,6 @@ import {
   Portal,
   Text,
   Provider as PaperProvider,
-  DefaultTheme,
 } from 'react-native-paper';
 import {launchImageLibrary} from 'react-native-image-picker';
 import firestore from '@react-native-firebase/firestore';
@@ -24,7 +23,6 @@ const PostScreen = ({navigation}) => {
   const [errmsg, setErrmsg] = useState('');
   const [visible, setVisible] = useState(false);
   const [caption, setCaption] = useState('');
-  const [loadingCaption, setLoadingCaption] = useState(false);
   const [showWebView, setShowWebView] = useState(false);
 
   const showDialog = () => setVisible(true);
@@ -108,81 +106,79 @@ const PostScreen = ({navigation}) => {
   }, []);
 
   return (
-    <PaperProvider theme={DefaultTheme}>
-      <SafeAreaView style={styles.container}>
-        {showWebView ? (
-          <WebView
-            source={{
-              uri: 'https://captioncraftai-varadaraj-s-projects.vercel.app/',
-            }}
-            onMessage={event => {
-              const {data} = event.nativeEvent;
-              if (data === '') {
-                setErrmsg('Please try again');
-                showDialog();
-              } else {
-                data === 'Cancel' ? '' : setPostText(data);
-              }
-              setShowWebView(false);
-            }}
+    <SafeAreaView style={styles.container}>
+      {showWebView ? (
+        <WebView
+          source={{
+            uri: 'https://captioncraftai-varadaraj-s-projects.vercel.app/',
+          }}
+          onMessage={event => {
+            const {data} = event.nativeEvent;
+            if (data === '') {
+              setErrmsg('Please try again');
+              showDialog();
+            } else {
+              data === 'Cancel' ? '' : setPostText(data);
+            }
+            setShowWebView(false);
+          }}
+        />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+          <View style={styles.imageContainer}>
+            {image ? (
+              <Image source={image} style={styles.image} />
+            ) : (
+              <Image
+                source={require('../assets/addPost.png')}
+                style={styles.image}
+              />
+            )}
+          </View>
+          <TextInput
+            label="Write your post..."
+            value={postText}
+            onChangeText={setPostText}
+            multiline
+            numberOfLines={4}
+            style={styles.textInput}
           />
-        ) : (
-          <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-            <View style={styles.imageContainer}>
-              {image ? (
-                <Image source={image} style={styles.image} />
-              ) : (
-                <Image
-                  source={require('../assets/addPost.png')}
-                  style={styles.image}
-                />
-              )}
-            </View>
-            <TextInput
-              label="Write your post..."
-              value={postText}
-              onChangeText={setPostText}
-              multiline
-              numberOfLines={4}
-              style={styles.textInput}
-            />
-            <View style={styles.buttonRow}>
-              <Button
-                onPress={pickImage}
-                mode="contained-tonal"
-                style={styles.longButton}>
-                Select Image
-              </Button>
-              <Button
-                icon="creation"
-                mode="contained-tonal"
-                style={styles.longButton}
-                onPress={() => setShowWebView(true)}>
-                Try Nexus.Ai
-              </Button>
-              <Button
-                mode="contained-tonal"
-                style={styles.longButton}
-                onPress={handlePostSubmit}
-                loading={uploading}>
-                ADD POST
-              </Button>
-            </View>
-            <Portal>
-              <Dialog visible={visible} onDismiss={hideDialog}>
-                <Dialog.Title>NOTICE</Dialog.Title>
-                <Dialog.Content>
-                  <Text>{errmsg}</Text>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={hideDialog}>Close</Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
-          </ScrollView>
-        )}
-      </SafeAreaView>
-    </PaperProvider>
+          <View style={styles.buttonRow}>
+            <Button
+              onPress={pickImage}
+              mode="contained-tonal"
+              style={styles.longButton}>
+              Select Image
+            </Button>
+            <Button
+              icon="creation"
+              mode="contained-tonal"
+              style={styles.longButton}
+              onPress={() => setShowWebView(true)}>
+              Try Nexus.Ai
+            </Button>
+            <Button
+              mode="contained-tonal"
+              style={styles.longButton}
+              onPress={handlePostSubmit}
+              loading={uploading}>
+              ADD POST
+            </Button>
+          </View>
+          <Portal>
+            <Dialog visible={visible} onDismiss={hideDialog}>
+              <Dialog.Title>NOTICE</Dialog.Title>
+              <Dialog.Content>
+                <Text>{errmsg}</Text>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={hideDialog}>Close</Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -211,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   textInput: {
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     borderRadius: 10,
     width: '100%',
     marginBottom: 20,

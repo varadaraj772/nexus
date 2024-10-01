@@ -1,12 +1,14 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import {useTheme} from 'react-native-paper';
 
 function SearchSkeleton({direction}) {
+  const {colors} = useTheme();
   return (
     <SkeletonPlaceholder
-      backgroundColor="#f2f2f2"
-      highlightColor="#F0E7FF"
+      backgroundColor={colors.background}
+      highlightColor={colors.primaryContainer}
       direction={direction}
       speed={700}>
       <View style={styles.skeletonContainer}>

@@ -7,10 +7,12 @@ import ProfileScreen from '../screens/ProfileScreen';
 import PostScreen from '../screens/PostScreen';
 import SearchScreen from '../screens/SearchScreen';
 import ChatStackNavigator from './ChatStackNavigator';
+import {useTheme} from 'react-native-paper';
 
 const Tab = createBottomTabNavigator();
 
 export default function MainTabNavigator() {
+  const {colors} = useTheme();
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -29,7 +31,7 @@ export default function MainTabNavigator() {
           }
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6750a4',
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: 'black',
         tabBarStyle: {
           backgroundColor: 'white',
@@ -54,7 +56,7 @@ export default function MainTabNavigator() {
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{headerShown: false}}
+        options={{headerShown: false, headerTitle: 'NEXUS'}}
       />
       <Tab.Screen
         name="Search"
