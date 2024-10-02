@@ -4,7 +4,7 @@ import BootSplash from 'react-native-bootsplash';
 import {Provider as PaperProvider} from 'react-native-paper';
 import {ThemeProvider, ThemeContext} from './screens/ThemeContext';
 
-export default function App( ) {
+export default function App() {
   return (
     <ThemeProvider>
       <ThemeContext.Consumer>
