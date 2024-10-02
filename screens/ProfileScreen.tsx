@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   StyleSheet,
@@ -9,10 +9,12 @@ import {
   RefreshControl,
   Modal,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import Carousel from 'react-native-reanimated-carousel';
 import auth from '@react-native-firebase/auth';
-import { BlurView } from "@react-native-community/blur";
+import {BlurView} from '@react-native-community/blur';
 import {
   ActivityIndicator,
   Text,
@@ -22,12 +24,16 @@ import {
   Divider,
   Snackbar,
   Card,
+  SegmentedButtons,
+  useTheme,
 } from 'react-native-paper';
 import moment from 'moment';
-import { useIsFocused } from '@react-navigation/native';
-import { MasonryFlashList } from '@shopify/flash-list';
+import {useIsFocused} from '@react-navigation/native';
+import {MasonryFlashList} from '@shopify/flash-list';
+import {ThemeContext} from './ThemeContext';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({navigation}) => {
+  const {changeTheme} = useContext(ThemeContext);
   const [userData, setUserData] = useState(null);
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,12 +42,20 @@ const ProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null); 
+  const [selectedPost, setSelectedPost] = useState(null);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [message, setMessage] = useState('');
   const user = auth().currentUser;
-
+  const [value, setValue] = useState('');
+  const {colors} = useTheme();
+  const windowWidth = Dimensions.get('window').width;
   const isFocused = useIsFocused();
+
+  const handleThemeChange = theme => {
+    changeTheme(theme);
+    setMessage(`${theme} theme applied!`);
+    setSnackbarVisible(true);
+  };
 
   const handleError = error => {
     console.error('Error:', error);
@@ -119,19 +133,18 @@ const ProfileScreen = ({ navigation }) => {
     navigation.replace('Welcome');
   };
 
-  const handlePostLongPress = (post) => {
+  const handlePostLongPress = post => {
     setSelectedPost(post);
     setIsModalVisible(true);
   };
 
-  const renderPost = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.postContainer} 
-      onLongPress={() => handlePostLongPress(item)} 
-    >
+  const renderPost = ({item}) => (
+    <TouchableOpacity
+      style={styles.postContainer}
+      onLongPress={() => handlePostLongPress(item)}>
       {item.imageUrl && (
         <Image
-          source={{ uri: item.imageUrl }}
+          source={{uri: item.imageUrl}}
           style={styles.postImage}
           resizeMode="contain"
         />
@@ -148,14 +161,14 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={fetchUserPosts} />
-        }
-      >
+        }>
         <View style={styles.headerContainer}>
-          <Avatar.Image size={100} source={{ uri: userData?.imageurl }} />
+          <Avatar.Image size={100} source={{uri: userData?.imageurl}} />
           <View style={styles.userInfo}>
             <Text style={styles.userName}>{userData?.UserName}</Text>
             <Text style={styles.userFullName}>{userData?.FullName}</Text>
@@ -165,84 +178,110 @@ const ProfileScreen = ({ navigation }) => {
             <Button
               mode="contained"
               onPress={() => setIsEditModalVisible(true)}
-              style={styles.editButton}
-            >
+              style={styles.editButton}>
               Edit Profile
             </Button>
             <Button
               mode="outlined"
               onPress={SignOut}
-              style={styles.signOutButton}
-            >
+              style={styles.signOutButton}>
               Sign Out
             </Button>
           </View>
         </View>
         <Divider style={styles.divider} />
         <View style={styles.tabsContainer}>
-          <Button mode="text" onPress={() => {}}>Posts</Button>
-          <Button mode="text" onPress={() => {}}>Saved</Button>
-          <Button mode="text" onPress={() => {}}>Tagged</Button>
+          <SegmentedButtons
+            value={value}
+            onValueChange={setValue}
+            buttons={[
+              {
+                value: 'Default',
+                label: 'Default',
+                icon: 'format-color-fill',
+                onPress: () => handleThemeChange('Default'),
+              },
+              {
+                value: 'Orange',
+                label: 'Orange',
+                icon: 'fruit-citrus',
+                onPress: () => handleThemeChange('Orange'),
+              },
+              {
+                value: 'Green',
+                label: 'Green',
+                icon: 'leaf',
+                onPress: () => handleThemeChange('Green'),
+              },
+            ]}
+          />
         </View>
-        <MasonryFlashList
+        {/* <MasonryFlashList
           data={posts}
           renderItem={renderPost}
           keyExtractor={item => item.id}
           numColumns={2}
-          estimatedItemSize={150} 
+          estimatedItemSize={150}
           contentContainerStyle={styles.masonryContainer}
-        />
+        /> */}
+        {/* <Carousel
+          width={windowWidth}
+          height={400} // Adjust based on your design
+          data={posts}
+          renderItem={({item}) => renderPost(item)}
+          mode="horizontal-stack"
+          modeConfig={{
+            snapDirection: 'left', // or 'right' based on your design
+            stackInterval: 30, // Adjust the spacing between cards
+          }}
+          loop={false} // Set to true if you want continuous scrolling
+        /> */}
       </ScrollView>
       <Modal
         transparent={true}
         visible={isEditModalVisible}
-        onRequestClose={handleCancel}
-      >
-        <BlurView style={styles.modalContainer}
-        blurType="light"
-        blurAmount={10}
-        >
+        onRequestClose={handleCancel}>
+        <BlurView
+          style={styles.modalContainer}
+          blurType="light"
+          blurAmount={10}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Edit Profile</Text>
             <TextInput
-            mode='outlined'
+              mode="outlined"
               style={styles.input}
               value={editedData.FullName}
-               placeholder="Name"
+              placeholder="Name"
               onChangeText={text =>
-                setEditedData({ ...editedData, FullName: text })
+                setEditedData({...editedData, FullName: text})
               }
             />
             <TextInput
-             mode='outlined'
+              mode="outlined"
               style={styles.input}
               value={editedData.Email}
-              onChangeText={text =>
-                setEditedData({ ...editedData, Email: text })
-              }
+              onChangeText={text => setEditedData({...editedData, Email: text})}
               placeholder="Email"
             />
             <TextInput
-             mode='outlined'
+              mode="outlined"
               style={styles.input}
               value={editedData.UserName}
               onChangeText={text =>
-                setEditedData({ ...editedData, UserName: text })
+                setEditedData({...editedData, UserName: text})
               }
               placeholder="Username"
             />
             <Button
               mode="contained"
               onPress={handleSave}
-              style={styles.saveButton}
-            >
+              style={styles.saveButton}>
               Save
             </Button>
             <Button
               mode="outlined"
               onPress={handleCancel}
-              style={styles.cancelButton}
-            >
+              style={styles.cancelButton}>
               Cancel
             </Button>
           </View>
@@ -250,9 +289,8 @@ const ProfileScreen = ({ navigation }) => {
       </Modal>
       <Modal
         //transparent={true}
-        visible={!!selectedPost} 
-        onRequestClose={() => setSelectedPost(null)}
-      >
+        visible={!!selectedPost}
+        onRequestClose={() => setSelectedPost(null)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             {selectedPost && (
@@ -263,13 +301,17 @@ const ProfileScreen = ({ navigation }) => {
                   </Text>
                   <Text
                     variant="labelMedium"
-                    style={[styles.timestamp, styles.alignRight]}
-                  >
-                    {moment(selectedPost.createdAt.toDate()).format('MMMM Do YYYY, h:mm a')}
+                    style={[styles.timestamp, styles.alignRight]}>
+                    {moment(selectedPost.createdAt.toDate()).format(
+                      'MMMM Do YYYY, h:mm a',
+                    )}
                   </Text>
                 </View>
                 {selectedPost.imageUrl && (
-                  <Card.Cover source={{ uri: selectedPost.imageUrl }} style={styles.img} />
+                  <Card.Cover
+                    source={{uri: selectedPost.imageUrl}}
+                    style={styles.img}
+                  />
                 )}
                 <Card.Content style={styles.content}>
                   <Text variant="bodyLarge">{selectedPost.content}</Text>
@@ -283,8 +325,7 @@ const ProfileScreen = ({ navigation }) => {
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-      >
+        duration={3000}>
         {message}
       </Snackbar>
     </SafeAreaView>
@@ -294,7 +335,6 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -336,8 +376,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   tabsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    padding: 10,
   },
   masonryContainer: {
     paddingHorizontal: 16,
@@ -347,25 +386,25 @@ const styles = StyleSheet.create({
   },
   postImage: {
     width: '100%',
-    height:200,
+    height: 200,
     borderRadius: 15,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     bottom: 0,
-    right: 0
+    right: 0,
   },
   modalContent: {
     width: '95%',
     backgroundColor: '#F0E7FF',
     padding: 5,
     borderRadius: 8,
-    color:"black"
+    color: 'black',
   },
   modalTitle: {
     fontSize: 18,

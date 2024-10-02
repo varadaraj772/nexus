@@ -19,8 +19,8 @@ function HomeSkeleton({direction}) {
             marginBottom: 15,
             borderRadius: 15,
             backgroundColor: '#FFF',
-            padding: 5,
-            margin: 5,
+            paddingHorizontal: 60,
+            margin: 50,
             width: 500,
           }}>
           <View

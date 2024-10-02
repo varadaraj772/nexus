@@ -6,8 +6,7 @@ export const ThemeContext = createContext();
 const defaultTheme = {
   ...MD3LightTheme,
   colors: {
-    ...MD3LightTheme.colors,
-    primary: '#6200ee', // Default primary color
+    ...MD3LightTheme.colors, // Default primary color
   },
 };
 
@@ -104,7 +103,7 @@ const greenTheme = {
 };
 
 export const ThemeProvider = ({children}) => {
-  const [theme, setTheme] = useState(greenTheme);
+  const [theme, setTheme] = useState(defaultTheme);
 
   const changeTheme = newTheme => {
     switch (newTheme) {

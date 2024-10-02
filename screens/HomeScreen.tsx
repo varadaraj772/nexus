@@ -22,7 +22,6 @@ import firestore from '@react-native-firebase/firestore';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import moment from 'moment';
 import HomeSkeleton from '../skeletons/HomeSkeleton';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 const HomeScreen = () => {
   const [posts, setPosts] = useState([]);
@@ -198,7 +197,11 @@ const HomeScreen = () => {
             style={[styles.card, {backgroundColor: colors.background}]}
             mode="elevated"
             key={post.id}>
-            <View style={styles.cardHeader}>
+            <View
+              style={[
+                styles.cardHeader,
+                {backgroundColor: colors.secondaryContainer},
+              ]}>
               <Text variant="titleLarge" style={styles.username}>
                 {post.userName}
               </Text>
@@ -218,7 +221,11 @@ const HomeScreen = () => {
             <Card.Content style={styles.content}>
               <Text variant="bodyLarge">{post.content}</Text>
             </Card.Content>
-            <Card.Actions style={styles.cardActions}>
+            <Card.Actions
+              style={[
+                styles.cardActions,
+                {backgroundColor: colors.secondaryContainer},
+              ]}>
               <Button
                 icon={liked ? 'cards-heart' : 'cards-heart-outline'}
                 mode="outlined"
@@ -238,7 +245,10 @@ const HomeScreen = () => {
               </Button>
               <View>
                 <Badge
-                  style={[styles.badge, {backgroundColor: colors.primary}]}
+                  style={[
+                    styles.badge,
+                    {backgroundColor: colors.primaryContainer},
+                  ]}
                   size={35}>
                   {post.commentCount || 0}
                 </Badge>
@@ -255,7 +265,7 @@ const HomeScreen = () => {
         </>
       );
     },
-    [likes, handleLikePress, handleCommentPress],
+    [likes, handleLikePress, handleCommentPress, colors],
   );
 
   const renderComments = useMemo(
@@ -275,14 +285,18 @@ const HomeScreen = () => {
   return (
     <>
       {loading ? (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container,{backgroundColor:colors.background}]}>
           <HomeSkeleton direction={'left'} />
           <HomeSkeleton direction={'right'} />
         </SafeAreaView>
       ) : (
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchPosts}
+              style={{backgroundColor: colors.primary}}
+            />
           }>
           {posts.length > 0 ? (
             posts.map(renderPost)
@@ -373,9 +387,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 5,
-    //backgroundColor: '#F0E7FF',
     borderRadius: 15,
-    marginVertical: 5,
+    marginVertical: 0,
   },
   text: {
     marginLeft: 25,
