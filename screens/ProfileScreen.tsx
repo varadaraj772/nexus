@@ -137,6 +137,17 @@ const ProfileScreen = ({navigation}) => {
     setSelectedPost(post);
     setIsModalVisible(true);
   };
+  const handleDeletePost = async postId => {
+    try {
+      await firestore().collection('posts').doc(postId).delete();
+      setMessage('Post deleted successfully!');
+      setSnackbarVisible(true);
+      setSelectedPost(null); // Close the modal
+      fetchUserPosts(); // Refresh posts
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const renderPost = ({item}) => (
     <TouchableOpacity
@@ -216,14 +227,14 @@ const ProfileScreen = ({navigation}) => {
             ]}
           />
         </View>
-        {/* <MasonryFlashList
+        <MasonryFlashList
           data={posts}
           renderItem={renderPost}
           keyExtractor={item => item.id}
           numColumns={2}
           estimatedItemSize={150}
           contentContainerStyle={styles.masonryContainer}
-        /> */}
+        />
         {/* <Carousel
           width={windowWidth}
           height={400} // Adjust based on your design
@@ -317,6 +328,12 @@ const ProfileScreen = ({navigation}) => {
                   <Text variant="bodyLarge">{selectedPost.content}</Text>
                 </Card.Content>
                 <Button onPress={() => setSelectedPost(null)}>Close</Button>
+                <Button
+                  mode="contained"
+                  onPress={() => handleDeletePost(selectedPost.id)}
+                  style={styles.deleteButton}>
+                  Delete Post
+                </Button>
               </Card>
             )}
           </View>
