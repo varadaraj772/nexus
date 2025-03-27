@@ -3,10 +3,12 @@ import React, {useEffect} from 'react';
 import {FAB, Text} from 'react-native-paper';
 import {StyleSheet, View, Image, StatusBar} from 'react-native';
 import auth from '@react-native-firebase/auth';
+import {PermissionsAndroid} from 'react-native';
 
 export default function Welcome({navigation}) {
   const user = auth().currentUser;
   useEffect(() => {
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     if (user) {
       return navigation.navigate('Home');
     }

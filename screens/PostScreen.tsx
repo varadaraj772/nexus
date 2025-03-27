@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, StyleSheet, Image, SafeAreaView, ScrollView} from 'react-native';
 import {
   TextInput,
@@ -24,9 +24,26 @@ const PostScreen = ({navigation}) => {
   const [visible, setVisible] = useState(false);
   const [caption, setCaption] = useState('');
   const [showWebView, setShowWebView] = useState(false);
+  const [isWebViewLoaded, setIsWebViewLoaded] = useState(false);
+
+  const webViewRef = useRef(null);
 
   const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
+
+  const sendMsgToPWA = () => {
+    setShowWebView(true);
+  };
+
+  const handleWebViewLoad = () => {
+    setIsWebViewLoaded(true);
+    console.log('WebView has loaded');
+    // Send the message to the WebView after it has loaded
+    if (webViewRef.current) {
+      webViewRef.current.postMessage('Hi to React - from React native');
+      console.log('Message sent to WebView');
+    }
+  };
 
   const pickImage = async () => {
     const options = {
@@ -109,11 +126,15 @@ const PostScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {showWebView ? (
         <WebView
+          ref={webViewRef}
+          onLoad={handleWebViewLoad}
           source={{
-            uri: 'https://captioncraftai-varadaraj-s-projects.vercel.app/',
+            uri: 'https://caption-craft-rose.vercel.app/',
           }}
           onMessage={event => {
             const {data} = event.nativeEvent;
+            console.log(data);
+            console.log(event.nativeEvent);
             if (data === '') {
               setErrmsg('Please try again');
               showDialog();
@@ -163,6 +184,12 @@ const PostScreen = ({navigation}) => {
               onPress={handlePostSubmit}
               loading={uploading}>
               ADD POST
+            </Button>
+            <Button
+              mode="contained-tonal"
+              style={styles.longButton}
+              onPress={sendMsgToPWA}>
+              MEssage
             </Button>
           </View>
           <Portal>

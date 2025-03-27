@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import AppNavigator from './navigation/AppNavigator';
 import BootSplash from 'react-native-bootsplash';
 import {Provider as PaperProvider} from 'react-native-paper';
 import {ThemeProvider, ThemeContext} from './screens/ThemeContext';
-import ReactNativeBiometrics, {BiometryTypes} from 'react-native-biometrics';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import {Alert} from 'react-native';
 
 export default function App() {
@@ -29,7 +29,9 @@ export default function App() {
       return false;
     }
   };
-  handleBiometricAuth();
+  useEffect(() => {
+    handleBiometricAuth();
+  }, []);
   return (
     <ThemeProvider>
       <ThemeContext.Consumer>

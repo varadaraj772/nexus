@@ -6,7 +6,7 @@ export const ThemeContext = createContext();
 const defaultTheme = {
   ...MD3LightTheme,
   colors: {
-    ...MD3LightTheme.colors, // Default primary color
+    ...MD3LightTheme.colors, 
   },
 };
 

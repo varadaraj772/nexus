@@ -30,7 +30,7 @@ export default function AppNavigator({biometrics}) {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={user ? 'Main' : 'Welcome'}>
-        {user && biometrics ? (
+        {user ? (
           <Stack.Screen
             name="Main"
             component={MainTabNavigator}

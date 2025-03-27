@@ -13,6 +13,8 @@ import {
   HelperText,
   DefaultTheme,
 } from 'react-native-paper';
+
+
 import {Image} from 'react-native';
 
 export default function SignIn({navigation}) {
@@ -33,7 +35,7 @@ export default function SignIn({navigation}) {
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.navigate('Home');
+        navigation.navigate('Main');
       })
       .catch(error => {
         setErrmsg(error.message);
